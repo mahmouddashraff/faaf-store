@@ -1,0 +1,148 @@
+'use client';
+
+import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { workoutPlans, WorkoutPlan } from '../../lib/workoutPlans';
+import WorkoutPlanCard from '../../components/WorkoutPlanCard';
+
+const filterCategories = [
+  { id: 'ALL', label: 'All Plans' },
+  { id: 'Beginner', label: 'Beginner' },
+  { id: 'Intermediate', label: 'Intermediate' },
+  { id: 'Advanced', label: 'Advanced' },
+  { id: 'Strength', label: 'Strength & Hypertrophy' },
+  { id: 'Fat Loss', label: 'Fat Loss' },
+  { id: 'Home', label: 'Home / No Gym' },
+];
+
+export default function WorkoutPlansPage() {
+  const [activeFilter, setActiveFilter] = useState<string>('ALL');
+
+  const filteredPlans = useMemo(() => {
+    if (activeFilter === 'ALL') return workoutPlans;
+    return workoutPlans.filter(
+      p => p.level === activeFilter || p.category === activeFilter
+    );
+  }, [activeFilter]);
+
+  return (
+    <main className="workout-plans-view">
+      {/* 1. HERO SECTION */}
+      <section className="plans-hero-section">
+        <div className="hero-glow-1"></div>
+        <div className="hero-glow-2"></div>
+        <div className="plans-hero-inner">
+          <div className="lifestyle-pill-tag">
+            <span>⚡</span> FREE STRUCTURED WORKOUT PLANS
+          </div>
+          <h1 className="plans-hero-title">
+            TRAIN WITH<br />
+            <span className="hero-highlight">PURPOSE.</span>
+          </h1>
+          <p className="plans-hero-desc">
+            Stop guessing your sets and reps. Follow structured, periodized workout plans engineered by elite coaches to help you train smarter, stay consistent, and reach your physical peak.
+          </p>
+          <div className="plans-hero-ctas">
+            <a href="#plans-grid" className="primary-btn">
+              FIND YOUR PLAN ↓
+            </a>
+            <Link href="/programs" className="secondary-btn light">
+              EXPLORE GUIDED PROGRAMS →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. FILTER CONTROLS & PLANS GRID */}
+      <section className="plans-grid-section" id="plans-grid">
+        <div className="plans-container">
+          <div className="section-header-block">
+            <span className="section-subtitle-tag">SELECT YOUR LEVEL &amp; GOAL</span>
+            <h2 className="section-main-title">EXPLORE WORKOUT PLANS</h2>
+            <p className="section-desc">
+              Whether training in a full gym or in your living room, find the exact blueprint that fits your schedule.
+            </p>
+          </div>
+
+          {/* Filter Pills */}
+          <div className="plans-filter-bar" role="tablist" aria-label="Workout plan filters">
+            {filterCategories.map(cat => (
+              <button
+                key={cat.id}
+                role="tab"
+                aria-selected={activeFilter === cat.id}
+                className={`plan-filter-pill ${activeFilter === cat.id ? 'active' : ''}`}
+                onClick={() => setActiveFilter(cat.id)}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Results Summary */}
+          <div className="plans-results-count">
+            Showing <strong>{filteredPlans.length}</strong> {filteredPlans.length === 1 ? 'workout plan' : 'workout plans'}
+            {activeFilter !== 'ALL' && ` in ${filterCategories.find(c => c.id === activeFilter)?.label}`}
+          </div>
+
+          {/* Cards Grid */}
+          <div className="workout-cards-grid">
+            {filteredPlans.map((plan: WorkoutPlan) => (
+              <WorkoutPlanCard key={plan.id} plan={plan} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3. HOW IT WORKS */}
+      <section className="how-it-works-section">
+        <div className="how-it-works-container">
+          <div className="section-header-block">
+            <span className="section-subtitle-tag" style={{ color: '#38bdf8' }}>SIMPLE STEP-BY-STEP</span>
+            <h2 className="section-main-title" style={{ color: 'white' }}>HOW IT WORKS</h2>
+            <p className="section-desc" style={{ color: '#94a3b8' }}>
+              Four streamlined steps from selecting your routine to achieving tangible progress.
+            </p>
+          </div>
+
+          <div className="how-steps-grid">
+            <div className="how-step-card">
+              <div className="step-number">01</div>
+              <h4>Choose Your Goal</h4>
+              <p>Identify whether your priority is raw strength, muscle hypertrophy, rapid fat loss, or functional athleticism.</p>
+            </div>
+            <div className="how-step-card">
+              <div className="step-number">02</div>
+              <h4>Pick Your Plan</h4>
+              <p>Select the plan that matches your training experience (Beginner to Advanced) and available days per week.</p>
+            </div>
+            <div className="how-step-card">
+              <div className="step-number">03</div>
+              <h4>Follow Your Program</h4>
+              <p>Execute exercises with prescribed intensity, rest periods, progressive weight increases, and proper form.</p>
+            </div>
+            <div className="how-step-card">
+              <div className="step-number">04</div>
+              <h4>Track Your Progress</h4>
+              <p>Log your working weights, monitor recovery metrics, and fuel your gains with targeted FAAF nutrition.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. FINAL CTA */}
+      <section className="plans-cta-section">
+        <div className="plans-cta-inner">
+          <span className="section-subtitle-tag" style={{ color: '#fef08a' }}>TAKE THE LEAP</span>
+          <h2>YOUR NEXT LEVEL STARTS HERE.</h2>
+          <p>
+            Looking for complete guided nutrition, video masterclasses, and community coach support? Explore our comprehensive flagship programs.
+          </p>
+          <Link href="/programs" className="primary-btn" style={{ background: '#0284c7', color: 'white' }}>
+            EXPLORE COMPREHENSIVE PROGRAMS →
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
+}
