@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -45,9 +46,13 @@ export default function Footer() {
           <div className="footer-col brand-col">
             <Link href="/" className="footer-brand-logo">
               <div className="brand-symbol">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor" />
-                </svg>
+                <Image
+                  src="/logo.png"
+                  alt="FAAF Fitness Magic"
+                  width={40}
+                  height={40}
+                  className="brand-logo-img"
+                />
               </div>
               <div className="brand-text">
                 <span className="brand-name">FAAF</span>
@@ -67,13 +72,14 @@ export default function Footer() {
 
           {/* Shop Column */}
           <div className="footer-col">
-            <h4 className="footer-heading">SHOP CATEGORIES</h4>
+            <h4 className="footer-heading">SHOP &amp; NUTRITION</h4>
             <ul className="footer-links-list">
+              <li><Link href="/meal-plans" style={{ color: '#dfb76c', fontWeight: 'bold' }}>🥗 Structured Meal Plans</Link></li>
               <li><Link href="/shop?category=Powder">100% Pure Whey Isolate</Link></li>
               <li><Link href="/shop?category=Supplements">Creatine &amp; Pre-Workout</Link></li>
-              <li><Link href="/shop?category=Bars">Protein Crunch Bars</Link></li>
+              <li><Link href="/shop?category=Bars">Crunch &amp; Energy Bars</Link></li>
               <li><Link href="/shop?category=Shakes">Ready-to-Drink Shakes</Link></li>
-              <li><Link href="/shop?category=Snacks">Protein Snack Bites</Link></li>
+              <li><Link href="/shop?category=Snacks">Healthy Snack Bites</Link></li>
               <li><Link href="/shop?category=Bundles">Stacks &amp; Bundles (Save 20%)</Link></li>
             </ul>
           </div>

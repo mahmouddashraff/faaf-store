@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 
@@ -53,9 +54,14 @@ export default function Header() {
           {/* FAAF Brand Logo */}
           <Link href="/" className="brand-logo" aria-label="FAAF Fitness Magic Home">
             <div className="brand-symbol">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor" />
-              </svg>
+              <Image
+                src="/logo.png"
+                alt="FAAF Fitness Magic"
+                width={42}
+                height={42}
+                className="brand-logo-img"
+                priority
+              />
             </div>
             <div className="brand-text">
               <span className="brand-name">FAAF</span>
@@ -71,8 +77,8 @@ export default function Header() {
             <Link href="/shop" className={`nav-link ${pathname === '/shop' ? 'active' : ''}`}>
               Shop All
             </Link>
-            <Link href="/shop?category=Powder" className="nav-link">
-              Protein
+            <Link href="/meal-plans" className={`nav-link ${pathname === '/meal-plans' ? 'active' : ''}`}>
+              Meal Plans
             </Link>
             <Link href="/shop?category=Supplements" className="nav-link">
               Supplements
@@ -137,7 +143,7 @@ export default function Header() {
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <span>Search supplements, bars, shakes...</span>
+            <span>Search meal plans, supplements, shakes...</span>
           </div>
 
           <nav className="mobile-links-list">
@@ -159,15 +165,15 @@ export default function Header() {
               <span>🏆 Guided Programs</span>
             </Link>
 
-            <div className="mobile-nav-group-title">STORE CATEGORIES</div>
-            <Link href="/shop?category=Powder" className="mobile-link sub" onClick={() => setMenuOpen(false)}>
-              <span>🥤 Protein Powders</span>
+            <div className="mobile-nav-group-title">STORE &amp; NUTRITION</div>
+            <Link href="/meal-plans" className="mobile-link sub" onClick={() => setMenuOpen(false)}>
+              <span>🥗 Meal Plans</span>
             </Link>
             <Link href="/shop?category=Supplements" className="mobile-link sub" onClick={() => setMenuOpen(false)}>
               <span>💊 Supplements &amp; Creatine</span>
             </Link>
             <Link href="/shop?category=Bars" className="mobile-link sub" onClick={() => setMenuOpen(false)}>
-              <span>🍫 Protein Bars &amp; Snacks</span>
+              <span>🍫 Crunch Bars &amp; Snacks</span>
             </Link>
             <Link href="/shop?category=Shakes" className="mobile-link sub" onClick={() => setMenuOpen(false)}>
               <span>🥛 RTD Shakes &amp; Drinks</span>

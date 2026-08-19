@@ -163,9 +163,9 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
       <section className="detail-schedule-section">
         <div className="detail-container">
           <div className="section-header-block">
-            <span className="section-subtitle-tag" style={{ color: '#38bdf8' }}>SAMPLE TRAINING SPLIT</span>
-            <h2 className="detail-section-heading" style={{ color: 'white' }}>WEEKLY ROUTINE SCHEDULE</h2>
-            <p className="section-desc" style={{ color: '#94a3b8' }}>
+            <span className="section-subtitle-tag">SAMPLE TRAINING SPLIT</span>
+            <h2 className="detail-section-heading">WEEKLY ROUTINE SCHEDULE</h2>
+            <p className="section-desc">
               A balanced 7-day periodization template structuring high-intensity training with targeted recovery.
             </p>
           </div>
@@ -219,7 +219,6 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
           <div className="detail-cta-buttons">
             <button
               className="primary-btn"
-              style={{ background: '#f59e0b', color: '#0b0f17' }}
               onClick={() => setShowModal(true)}
             >
               {isEnrolled ? 'ACCESS YOUR PROGRAM DASHBOARD' : 'ENROLL FOR FREE NOW →'}

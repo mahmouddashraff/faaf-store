@@ -56,7 +56,7 @@ export default function SearchModal() {
           <input
             ref={inputRef}
             type="search"
-            placeholder="Search supplements, protein bars, powders, shakes..."
+            placeholder="Search meal plans, supplements, powders, shakes..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="search-input-field"
@@ -74,7 +74,7 @@ export default function SearchModal() {
         {/* Quick Suggestion Pills */}
         <div className="quick-tags">
           <span className="tags-label">Popular:</span>
-          {['Whey Isolate', 'Creatine', 'Protein Bar', 'Pre-Workout', 'Bundles'].map(tag => (
+          {['Meal Plans', 'Whey Isolate', 'Creatine', 'Pre-Workout', 'Bundles'].map(tag => (
             <button
               key={tag}
               className="quick-tag-pill"

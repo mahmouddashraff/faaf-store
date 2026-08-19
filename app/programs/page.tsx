@@ -103,9 +103,9 @@ export default function ProgramsPage() {
       <section className="why-programs-section">
         <div className="why-programs-container">
           <div className="section-header-block">
-            <span className="section-subtitle-tag" style={{ color: '#38bdf8' }}>THE SCIENCE OF PROGRESS</span>
-            <h2 className="section-main-title" style={{ color: 'white' }}>WHY FAAF PROGRAMS DELIVER RESULTS</h2>
-            <p className="section-desc" style={{ color: '#94a3b8' }}>
+            <span className="section-subtitle-tag">THE SCIENCE OF PROGRESS</span>
+            <h2 className="section-main-title">WHY FAAF PROGRAMS DELIVER RESULTS</h2>
+            <p className="section-desc">
               Random workouts create random results. Structured periodization drives predictable adaptations.
             </p>
           </div>
@@ -144,7 +144,7 @@ export default function ProgramsPage() {
             Join thousands of active athletes using FAAF training systems and performance nutrition every single day.
           </p>
           <div className="programs-cta-actions">
-            <Link href="/programs/90-day-transformation" className="primary-btn" style={{ background: '#f59e0b', color: '#0b0f17' }}>
+            <Link href="/programs/90-day-transformation" className="primary-btn">
               START 90-DAY TRANSFORMATION →
             </Link>
             <Link href="/shop" className="secondary-btn light">

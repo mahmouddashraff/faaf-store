@@ -23,6 +23,10 @@ export const metadata: Metadata = {
     'pre-workout',
     'FAAF fitness',
   ],
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({

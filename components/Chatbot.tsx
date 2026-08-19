@@ -98,13 +98,18 @@ export default function Chatbot() {
           width: "65px",
           height: "65px",
           borderRadius: "50%",
-          backgroundColor: "#08a9e6",
-          color: "white",
+          background: "linear-gradient(135deg, #fae59e 0%, #dfb76c 45%, #b98a28 100%)",
+          color: "#070709",
           border: "none",
-          fontSize: "30px",
+          fontSize: "28px",
+          fontWeight: "bold",
           cursor: "pointer",
           zIndex: 999999,
-          boxShadow: "0 5px 20px rgba(0,0,0,0.3)",
+          boxShadow: "0 8px 25px rgba(223, 183, 108, 0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
         }}
         aria-label="Open FAAF Assistant"
       >
@@ -120,11 +125,12 @@ export default function Chatbot() {
             right: "25px",
             width: "360px",
             height: "500px",
-            backgroundColor: "white",
+            backgroundColor: "#0d0d12",
             borderRadius: "20px",
+            border: "1px solid rgba(223, 183, 108, 0.3)",
             overflow: "hidden",
             zIndex: 999998,
-            boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.85), 0 0 30px rgba(223, 183, 108, 0.15)",
             display: "flex",
             flexDirection: "column",
           }}
@@ -132,9 +138,9 @@ export default function Chatbot() {
           {/* HEADER */}
           <div
             style={{
-              backgroundColor: "#071426",
-              color: "white",
-              padding: "18px",
+              backgroundColor: "#08080b",
+              borderBottom: "1px solid rgba(223, 183, 108, 0.2)",
+              padding: "16px 20px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -143,8 +149,11 @@ export default function Chatbot() {
             <div>
               <div
                 style={{
-                  fontSize: "18px",
-                  fontWeight: "bold",
+                  fontSize: "16px",
+                  fontWeight: "900",
+                  fontFamily: "Outfit, sans-serif",
+                  color: "#fae59e",
+                  letterSpacing: "0.02em",
                 }}
               >
                 FAAF Assistant
@@ -152,12 +161,13 @@ export default function Chatbot() {
 
               <div
                 style={{
-                  fontSize: "12px",
-                  color: "#b8c1cc",
-                  marginTop: "3px",
+                  fontSize: "11px",
+                  color: "#94a3b8",
+                  marginTop: "2px",
+                  fontWeight: "600",
                 }}
               >
-                AI Fitness Assistant
+                AI Fitness Specialist
               </div>
             </div>
 
@@ -165,11 +175,17 @@ export default function Chatbot() {
               type="button"
               onClick={() => setIsOpen(false)}
               style={{
-                background: "transparent",
+                background: "rgba(255, 255, 255, 0.06)",
                 border: "none",
-                color: "white",
-                fontSize: "25px",
+                color: "#94a3b8",
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                fontSize: "18px",
                 cursor: "pointer",
+                display: "grid",
+                placeItems: "center",
+                transition: "color 0.15s ease",
               }}
             >
               ×
@@ -181,7 +197,7 @@ export default function Chatbot() {
             style={{
               flex: 1,
               padding: "16px",
-              backgroundColor: "#f5f7fa",
+              backgroundColor: "#070709",
               overflowY: "auto",
             }}
           >
@@ -200,29 +216,39 @@ export default function Chatbot() {
                 <div
                   style={{
                     backgroundColor:
-                      message.role === "user" ? "#08a9e6" : "white",
+                      message.role === "user"
+                        ? "#dfb76c"
+                        : "#13131a",
                     color:
-                      message.role === "user" ? "white" : "#222",
+                      message.role === "user" ? "#070709" : "#e2e8f0",
+                    border:
+                      message.role === "user"
+                        ? "none"
+                        : "1px solid rgba(255, 255, 255, 0.08)",
                     padding: "12px 14px",
                     borderRadius: "15px",
-                    fontSize: "14px",
+                    fontSize: "13.5px",
+                    fontWeight: message.role === "user" ? "600" : "400",
                     maxWidth: "85%",
+                    lineHeight: "1.5",
                     whiteSpace: "pre-wrap",
                     boxShadow:
                       message.role === "assistant"
-                        ? "0 2px 8px rgba(0,0,0,0.08)"
-                        : "none",
+                        ? "0 4px 15px rgba(0,0,0,0.5)"
+                        : "0 2px 8px rgba(223, 183, 108, 0.25)",
                   }}
                 >
                   {message.role === "assistant" && (
                     <div
                       style={{
-                        color: "#08a9e6",
-                        fontWeight: "bold",
-                        marginBottom: "5px",
+                        color: "#dfb76c",
+                        fontWeight: "800",
+                        fontSize: "11px",
+                        letterSpacing: "0.05em",
+                        marginBottom: "4px",
                       }}
                     >
-                      FAAF Assistant
+                      FAAF ASSISTANT
                     </div>
                   )}
 
@@ -235,16 +261,17 @@ export default function Chatbot() {
             {loading && (
               <div
                 style={{
-                  backgroundColor: "white",
+                  backgroundColor: "#13131a",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
                   padding: "12px 14px",
                   borderRadius: "15px",
-                  fontSize: "14px",
-                  color: "#666",
+                  fontSize: "13px",
+                  color: "#94a3b8",
                   width: "fit-content",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
                 }}
               >
-                FAAF Assistant is thinking... 🤔
+                FAAF Assistant is analyzing... ⚡
               </div>
             )}
           </div>
@@ -253,8 +280,8 @@ export default function Chatbot() {
           <div
             style={{
               padding: "12px",
-              borderTop: "1px solid #ddd",
-              backgroundColor: "white",
+              borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+              backgroundColor: "#0d0d12",
               display: "flex",
               gap: "8px",
             }}
@@ -269,11 +296,13 @@ export default function Chatbot() {
               style={{
                 flex: 1,
                 minWidth: 0,
-                padding: "12px",
-                border: "1px solid #ddd",
+                padding: "10px 14px",
+                border: "1px solid rgba(223, 183, 108, 0.25)",
                 borderRadius: "12px",
                 outline: "none",
-                fontSize: "14px",
+                fontSize: "13.5px",
+                backgroundColor: "#15151e",
+                color: "#f1f5f9",
               }}
             />
 
@@ -282,15 +311,19 @@ export default function Chatbot() {
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               style={{
-                width: "50px",
+                width: "44px",
                 border: "none",
                 borderRadius: "12px",
-                backgroundColor: loading
-                  ? "#aaa"
-                  : "#08a9e6",
-                color: "white",
-                fontSize: "20px",
-                cursor: loading ? "not-allowed" : "pointer",
+                background: loading
+                  ? "#22222c"
+                  : "linear-gradient(135deg, #fae59e 0%, #dfb76c 45%, #b98a28 100%)",
+                color: loading ? "#64748b" : "#070709",
+                fontSize: "16px",
+                fontWeight: "900",
+                cursor: loading || !input.trim() ? "not-allowed" : "pointer",
+                display: "grid",
+                placeItems: "center",
+                boxShadow: loading ? "none" : "0 2px 10px rgba(223, 183, 108, 0.35)",
               }}
             >
               ➤

@@ -231,7 +231,7 @@ export default function LifestylePage() {
       <section className="lifestyle-philosophy-section">
         <div className="philosophy-inner">
           <div className="philosophy-content">
-            <span className="section-subtitle-tag" style={{ color: '#38bdf8' }}>OUR MANIFESTO</span>
+            <span className="section-subtitle-tag">OUR MANIFESTO</span>
             <h2>MORE THAN FITNESS</h2>
             <p>
               We founded FAAF on the belief that fitness is not a seasonal chore or a 30-day punishment—it is the bedrock of your confidence, mental clarity, and long-term vitality.
@@ -269,7 +269,7 @@ export default function LifestylePage() {
             Choose your starting point today. Browse clean performance fuels or begin a free structured workout plan.
           </p>
           <div className="lifestyle-cta-btns">
-            <Link href="/shop" className="primary-btn" style={{ background: '#f59e0b', color: '#0b0f17' }}>
+            <Link href="/shop" className="primary-btn">
               SHOP FAAF FUELS →
             </Link>
             <Link href="/workout-plans" className="secondary-btn light">

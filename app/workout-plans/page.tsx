@@ -98,9 +98,9 @@ export default function WorkoutPlansPage() {
       <section className="how-it-works-section">
         <div className="how-it-works-container">
           <div className="section-header-block">
-            <span className="section-subtitle-tag" style={{ color: '#38bdf8' }}>SIMPLE STEP-BY-STEP</span>
-            <h2 className="section-main-title" style={{ color: 'white' }}>HOW IT WORKS</h2>
-            <p className="section-desc" style={{ color: '#94a3b8' }}>
+            <span className="section-subtitle-tag">SIMPLE STEP-BY-STEP</span>
+            <h2 className="section-main-title">HOW IT WORKS</h2>
+            <p className="section-desc">
               Four streamlined steps from selecting your routine to achieving tangible progress.
             </p>
           </div>
@@ -133,12 +133,12 @@ export default function WorkoutPlansPage() {
       {/* 4. FINAL CTA */}
       <section className="plans-cta-section">
         <div className="plans-cta-inner">
-          <span className="section-subtitle-tag" style={{ color: '#fef08a' }}>TAKE THE LEAP</span>
+          <span className="section-subtitle-tag">TAKE THE LEAP</span>
           <h2>YOUR NEXT LEVEL STARTS HERE.</h2>
           <p>
             Looking for complete guided nutrition, video masterclasses, and community coach support? Explore our comprehensive flagship programs.
           </p>
-          <Link href="/programs" className="primary-btn" style={{ background: '#0284c7', color: 'white' }}>
+          <Link href="/programs" className="primary-btn">
             EXPLORE COMPREHENSIVE PROGRAMS →
           </Link>
         </div>

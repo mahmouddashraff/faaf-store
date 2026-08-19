@@ -3,14 +3,16 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { products, formatPrice } from '../lib/products';
+import { mealPlans } from '../lib/mealPlans';
 import ProductCard from '../components/ProductCard';
+import MealPlanCard from '../components/MealPlanCard';
 import Newsletter from '../components/Newsletter';
 import { useCart } from '../context/CartContext';
 
 const categoriesList = [
-  { name: 'Protein Powders', slug: 'Powder', count: '3 Products', accentClass: 'powder' },
+  { name: 'Meal Plans', slug: 'meal-plans', count: '5 Custom Plans', accentClass: 'mealplans', href: '/meal-plans' },
   { name: 'Supplements & Creatine', slug: 'Supplements', count: '3 Products', accentClass: 'supplements' },
-  { name: 'Protein Crunch Bars', slug: 'Bars', count: '2 Products', accentClass: 'bars' },
+  { name: 'Crunch & Snack Bars', slug: 'Bars', count: '2 Products', accentClass: 'bars' },
   { name: 'Ready-to-Drink Shakes', slug: 'Shakes', count: '1 Product', accentClass: 'shakes' },
   { name: 'Performance Snacks', slug: 'Snacks', count: '2 Products', accentClass: 'snacks' },
   { name: 'Stacks & Bundles', slug: 'Bundles', count: '2 Bundles (Save 20%)', accentClass: 'bundles' },
@@ -151,7 +153,7 @@ export default function Home() {
           <span className="section-subtitle-tag">CURATED COLLECTIONS</span>
           <h2 className="section-main-title">SHOP BY CATEGORY</h2>
           <p className="section-desc">
-            Explore our specialized categories designed for muscle building, endurance, lean recovery, and high-energy routines.
+            Explore our specialized categories designed for meal planning, muscle building, endurance, and high-energy routines.
           </p>
         </div>
 
@@ -159,7 +161,7 @@ export default function Home() {
           {categoriesList.map(cat => (
             <Link
               key={cat.slug}
-              href={`/shop?category=${encodeURIComponent(cat.slug)}`}
+              href={cat.href || `/shop?category=${encodeURIComponent(cat.slug)}`}
               className="category-showcase-tile"
             >
               <div className={`category-tile-bg ${cat.accentClass}`} />
@@ -175,7 +177,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. FEATURED PRODUCTS & BEST SELLERS */}
+      {/* 4. FEATURED MEAL PLANS SHOWCASE */}
+      <section className="categories-section" id="meal-plans-preview" style={{ paddingTop: '20px', paddingBottom: '60px' }}>
+        <div className="section-header-block">
+          <span className="section-subtitle-tag">CUSTOMIZED NUTRITION BLUEPRINTS</span>
+          <h2 className="section-main-title">FEATURED MEAL PLANS</h2>
+          <p className="section-desc">
+            Precision daily nutrition blueprints calculated for fat loss, clean hypertrophy, and metabolic longevity.
+          </p>
+        </div>
+
+        <div className="meal-plans-cards-grid">
+          {mealPlans.slice(0, 3).map(plan => (
+            <MealPlanCard key={plan.id} plan={plan} />
+          ))}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+          <Link href="/meal-plans" className="primary-btn">
+            EXPLORE ALL MEAL PLANS ({mealPlans.length} BLUEPRINTS) →
+          </Link>
+        </div>
+      </section>
+
+      {/* 5. FEATURED PRODUCTS & BEST SELLERS */}
       <section className="featured-section" id="featured">
         <div className="featured-container">
           <div className="section-header-block">
@@ -204,7 +229,7 @@ export default function Home() {
               className={`filter-tab-btn ${activeTab === 'Powder' ? 'active' : ''}`}
               onClick={() => setActiveTab('Powder')}
             >
-              Protein Powders
+              Performance Powders
             </button>
             <button
               className={`filter-tab-btn ${activeTab === 'Supplements' ? 'active' : ''}`}
@@ -289,7 +314,7 @@ export default function Home() {
               Whether you are preparing for competition or building a sustainable daily routine, FAAF gives you the edge you need.
             </p>
           </div>
-          <Link href="/shop" className="primary-btn" style={{ background: '#f59e0b', color: '#0b0f17' }}>
+          <Link href="/shop" className="primary-btn">
             SHOP PERFORMANCE FUEL →
           </Link>
         </div>

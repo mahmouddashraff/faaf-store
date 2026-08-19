@@ -7,9 +7,9 @@ import ProductCard from '../../components/ProductCard';
 
 const categories = [
   { id: 'ALL', label: 'All Products' },
-  { id: 'Powder', label: 'Protein Powders' },
+  { id: 'Powder', label: 'Performance Powders' },
   { id: 'Supplements', label: 'Supplements & Creatine' },
-  { id: 'Bars', label: 'Protein Bars' },
+  { id: 'Bars', label: 'Crunch Bars' },
   { id: 'Snacks', label: 'Snack Bites' },
   { id: 'Shakes', label: 'RTD Shakes' },
   { id: 'Drinks', label: 'Hydration Drinks' },
@@ -81,7 +81,7 @@ function ShopContent() {
     <main className="shop-view-page">
       {/* Banner Header */}
       <div className="shop-banner-header">
-        <span className="section-subtitle-tag" style={{ color: '#38bdf8' }}>FAAF FITNESS MAGIC STORE</span>
+        <span className="section-subtitle-tag">FAAF FITNESS MAGIC STORE</span>
         <h1>SHOP ALL PRODUCTS</h1>
         <p>Pure performance formulas, high-protein snacks, and essential stacks engineered for your goals.</p>
       </div>
