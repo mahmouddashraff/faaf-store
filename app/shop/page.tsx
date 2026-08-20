@@ -4,6 +4,7 @@ import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { products, Product } from '../../lib/products';
 import ProductCard from '../../components/ProductCard';
+import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
 const categories = [
   { id: 'ALL', label: 'All Products' },
@@ -177,6 +178,59 @@ function ShopContent() {
           ))}
         </div>
       )}
+
+      {/* Integrated In-Category Inquiry Section */}
+      <div style={{ maxWidth: '1200px', margin: '60px auto 0' }}>
+        <CategoryInquiryBanner
+          category={
+            selectedCategory === 'Supplements'
+              ? 'Supplements'
+              : selectedCategory === 'Bars'
+              ? 'Bars & Snacks'
+              : selectedCategory === 'Bundles'
+              ? 'Bundles'
+              : selectedCategory === 'Powder'
+              ? 'Protein Powder'
+              : selectedCategory === 'Shakes'
+              ? 'RTD Shakes'
+              : selectedCategory === 'Drinks'
+              ? 'Hydration Drinks'
+              : selectedCategory === 'Snacks'
+              ? 'Snacks'
+              : 'Supplements & Products'
+          }
+          title={
+            selectedCategory === 'Supplements'
+              ? 'NEED HELP CHOOSING SUPPLEMENTS OR CREATINE?'
+              : selectedCategory === 'Bars'
+              ? 'QUESTIONS ABOUT PROTEIN CRUNCH BARS & SNACKS?'
+              : selectedCategory === 'Bundles'
+              ? 'UNSURE WHICH TRANSFORMATION BUNDLE FITS YOU?'
+              : selectedCategory === 'Powder'
+              ? 'QUESTIONS ABOUT 100% PURE WHEY ISOLATE & FLAVORS?'
+              : 'HAVE QUESTIONS ABOUT OUR ATHLETIC PRODUCTS?'
+          }
+          subtitle="Talk directly with a FAAF certified nutrition specialist for personalized guidance, macro advice, or stack recommendations. Fast response within 2 hours."
+          buttonText={
+            selectedCategory === 'Supplements'
+              ? 'ASK A SUPPLEMENT SPECIALIST →'
+              : selectedCategory === 'Bars'
+              ? 'ASK ABOUT BARS & SNACKS →'
+              : selectedCategory === 'Bundles'
+              ? 'ASK ABOUT BUNDLE SAVINGS →'
+              : 'ASK AN ATHLETE SPECIALIST →'
+          }
+          icon={
+            selectedCategory === 'Supplements'
+              ? '💊'
+              : selectedCategory === 'Bars'
+              ? '🍫'
+              : selectedCategory === 'Bundles'
+              ? '🔥'
+              : '⚡'
+          }
+        />
+      </div>
     </main>
   );
 }

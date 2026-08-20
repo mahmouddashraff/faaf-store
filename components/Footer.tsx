@@ -91,6 +91,7 @@ export default function Footer() {
               <li><Link href="/lifestyle">Life Style Philosophy</Link></li>
               <li><Link href="/workout-plans">Free Workout Plans</Link></li>
               <li><Link href="/programs">90-Day Transformation</Link></li>
+              <li><Link href="/manual-therapy">Manual Therapy Studio</Link></li>
               <li><Link href="/programs/lean-and-strong">Lean &amp; Strong Protocol</Link></li>
               <li><Link href="/programs/performance">Athletic Performance</Link></li>
             </ul>
@@ -103,8 +104,8 @@ export default function Footer() {
               <li><Link href="/shop">Track My Order</Link></li>
               <li><Link href="/shop">Shipping Information</Link></li>
               <li><Link href="/shop">30-Day Returns Policy</Link></li>
-              <li><Link href="/shop">Frequently Asked Questions</Link></li>
-              <li><Link href="/shop">Contact Athlete Support</Link></li>
+              <li><Link href="/contact#faq">Frequently Asked Questions</Link></li>
+              <li><Link href="/contact">Contact Athlete Support</Link></li>
             </ul>
           </div>
         </div>

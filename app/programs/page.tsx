@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { programs, FitnessProgram } from '../../lib/programs';
 import ProgramCard from '../../components/ProgramCard';
+import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
 const programCategories = [
   { id: 'ALL', label: 'All Programs' },
@@ -136,7 +137,22 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* 4. FINAL CTA BANNER */}
+      {/* 4. PROGRAM ADVICE INQUIRY SECTION */}
+      <section style={{ padding: '0 24px 60px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <CategoryInquiryBanner
+            category="Programs"
+            title="UNSURE WHICH TRAINING SYSTEM FITS YOUR GOALS & TIMELINE?"
+            subtitle="Have specific fitness milestones, past injuries, or competition requirements? Connect directly with a FAAF head coach."
+            buttonText="ASK A HEAD COACH ABOUT PROGRAMS →"
+            badge="PROGRAM SELECTION"
+            icon="🏆"
+            pageName="/programs"
+          />
+        </div>
+      </section>
+
+      {/* 5. FINAL CTA BANNER */}
       <section className="programs-cta-banner">
         <div className="programs-cta-inner">
           <h2>READY TO START YOUR TRANSFORMATION?</h2>

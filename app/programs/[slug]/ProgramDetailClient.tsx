@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FitnessProgram } from '../../../lib/programs';
+import CategoryInquiryBanner from '../../../components/CategoryInquiry';
 
 export default function ProgramDetailClient({ program }: { program: FitnessProgram }) {
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -209,7 +210,22 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
         </div>
       </section>
 
-      {/* 5. BOTTOM CTA */}
+      {/* 5. PROGRAM INQUIRY SECTION */}
+      <section style={{ padding: '0 24px 60px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <CategoryInquiryBanner
+            category={`Program: ${program.title}`}
+            title={`HAVE QUESTIONS ABOUT ${program.title.toUpperCase()}?`}
+            subtitle={`Want to know if ${program.title} aligns with your current strength level, available equipment, or schedule? Ask our coaching team.`}
+            buttonText={`ASK ABOUT ${program.title.toUpperCase()} →`}
+            badge="COACH CONSULTATION"
+            icon="🏆"
+            pageName={`/programs/${program.slug}`}
+          />
+        </div>
+      </section>
+
+      {/* 6. BOTTOM CTA */}
       <section className="detail-cta-section">
         <div className="detail-cta-inner">
           <h2>READY TO TRANSFORM WITH {program.title}?</h2>

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
 export const metadata: Metadata = {
   title: 'Life Style | FAAF Fitness Magic',
@@ -261,7 +262,22 @@ export default function LifestylePage() {
         </div>
       </section>
 
-      {/* E. CTA */}
+      {/* E. LIFESTYLE ADVICE INQUIRY SECTION */}
+      <section style={{ padding: '0 24px 60px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <CategoryInquiryBanner
+            category="Lifestyle & Routine"
+            title="WANT PERSONALIZED GUIDANCE ON BUILDING YOUR DAILY ROUTINE?"
+            subtitle="Connect directly with a FAAF performance coach for mindset, sleep optimization, and sustainable fitness habit stacking."
+            buttonText="ASK A COACH ABOUT LIFESTYLE HABITS →"
+            badge="LIFESTYLE COACHING"
+            icon="🌿"
+            pageName="/lifestyle"
+          />
+        </div>
+      </section>
+
+      {/* F. CTA */}
       <section className="lifestyle-cta-banner">
         <div className="lifestyle-cta-inner">
           <h2>READY TO LEVEL UP YOUR LIFESTYLE?</h2>

@@ -7,6 +7,7 @@ import { mealPlans } from '../lib/mealPlans';
 import ProductCard from '../components/ProductCard';
 import MealPlanCard from '../components/MealPlanCard';
 import Newsletter from '../components/Newsletter';
+import CategoryInquiryBanner from '../components/CategoryInquiry';
 import { useCart } from '../context/CartContext';
 
 const categoriesList = [
@@ -377,7 +378,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. NEWSLETTER SUBSCRIPTION */}
+      {/* 8. EXPERT GUIDANCE INQUIRY BANNER */}
+      <section style={{ padding: '40px 24px 0', background: 'var(--bg-surface-secondary)' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <CategoryInquiryBanner
+            category="General Inquiry"
+            title="HAVE QUESTIONS ABOUT PRODUCTS, MEAL PLANS, OR TRAINING?"
+            subtitle="Connect with our athlete support team and nutritionists for personalized answers. Fast response within 2 hours."
+            buttonText="ASK AN ATHLETE SPECIALIST →"
+            badge="EXPERT ASSISTANCE"
+            icon="💬"
+            pageName="/"
+          />
+        </div>
+      </section>
+
+      {/* 9. NEWSLETTER SUBSCRIPTION */}
       <Newsletter />
     </main>
   );

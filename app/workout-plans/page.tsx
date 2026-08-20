@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { workoutPlans, WorkoutPlan } from '../../lib/workoutPlans';
 import WorkoutPlanCard from '../../components/WorkoutPlanCard';
+import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
 const filterCategories = [
   { id: 'ALL', label: 'All Plans' },
@@ -130,7 +131,22 @@ export default function WorkoutPlansPage() {
         </div>
       </section>
 
-      {/* 4. FINAL CTA */}
+      {/* 4. WORKOUT INQUIRY SECTION */}
+      <section style={{ padding: '0 24px 60px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <CategoryInquiryBanner
+            category="Workout Plans"
+            title="NEED HELP CHOOSING OR ADJUSTING A WORKOUT SPLIT?"
+            subtitle="Have questions about sets, reps, progressive overload, or training with limited gym equipment? Connect with a FAAF coach."
+            buttonText="ASK A COACH ABOUT WORKOUT PLANS →"
+            badge="TRAINING GUIDANCE"
+            icon="📋"
+            pageName="/workout-plans"
+          />
+        </div>
+      </section>
+
+      {/* 5. FINAL CTA */}
       <section className="plans-cta-section">
         <div className="plans-cta-inner">
           <span className="section-subtitle-tag">TAKE THE LEAP</span>

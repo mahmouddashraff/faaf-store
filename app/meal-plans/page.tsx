@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { mealPlans, MealPlan } from '../../lib/mealPlans';
 import MealPlanCard from '../../components/MealPlanCard';
+import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
 const filterCategories = [
   { id: 'ALL', label: 'All Meal Plans' },
@@ -169,7 +170,22 @@ export default function MealPlansPage() {
         </div>
       </section>
 
-      {/* 5. FINAL CTA BANNER */}
+      {/* 5. NUTRITION COACHING INQUIRY SECTION */}
+      <section style={{ padding: '0 24px 60px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <CategoryInquiryBanner
+            category="Meal Plans"
+            title="NEED A CUSTOMIZED NUTRITION BLUEPRINT OR DIETARY ADVICE?"
+            subtitle="Have specific allergies, macros targets, vegetarian preferences, or competition prep needs? Connect directly with a FAAF sports nutritionist."
+            buttonText="ASK A NUTRITIONIST ABOUT MEAL PLANS →"
+            badge="NUTRITION CONSULTATION"
+            icon="🥗"
+            pageName="/meal-plans"
+          />
+        </div>
+      </section>
+
+      {/* 6. FINAL CTA BANNER */}
       <section className="plans-cta-section">
         <div className="plans-cta-inner">
           <span className="section-subtitle-tag">READY FOR SERIOUS PROGRESS?</span>
