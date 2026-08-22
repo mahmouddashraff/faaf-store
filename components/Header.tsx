@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useCart } from '../context/CartContext';
-import InstallAppBadge from './InstallAppBadge';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,28 +51,23 @@ export default function Header() {
             <span className="hamburger-line"></span>
           </button>
 
-          {/* FAAF Brand Logo & Install Badge */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Link href="/" className="brand-logo" aria-label="FAAF Fitness Magic Home">
-              <div className="brand-symbol">
-                <Image
-                  src="/logo.png"
-                  alt="FAAF Fitness Magic"
-                  width={42}
-                  height={42}
-                  className="brand-logo-img"
-                  priority
-                />
-              </div>
-              <div className="brand-text">
-                <span className="brand-name">FAAF</span>
-                <span className="brand-sub">FITNESS MAGIC</span>
-              </div>
-            </Link>
-            
-            {/* Install App Badge purely for mobile instructions */}
-            <InstallAppBadge />
-          </div>
+          {/* FAAF Brand Logo */}
+          <Link href="/" className="brand-logo" aria-label="FAAF Fitness Magic Home">
+            <div className="brand-symbol">
+              <Image
+                src="/logo.png"
+                alt="FAAF Fitness Magic"
+                width={42}
+                height={42}
+                className="brand-logo-img"
+                priority
+              />
+            </div>
+            <div className="brand-text">
+              <span className="brand-name">FAAF</span>
+              <span className="brand-sub">FITNESS MAGIC</span>
+            </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="desktop-navigation">
