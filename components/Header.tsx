@@ -101,6 +101,9 @@ export default function Header() {
             <Link href="/manual-therapy" className={`nav-link ${pathname === '/manual-therapy' ? 'active' : ''}`}>
               Manual Therapy
             </Link>
+            <Link href="/download-app" className="nav-link nav-highlight">
+              DOWNLOAD APP
+            </Link>
           </nav>
 
           {/* Action Icons */}
@@ -169,6 +172,9 @@ export default function Header() {
             </Link>
             <Link href="/manual-therapy" className="mobile-link sub" onClick={() => setMenuOpen(false)}>
               <span>💆 Manual Therapy</span>
+            </Link>
+            <Link href="/download-app" className="mobile-link sub highlight" onClick={() => setMenuOpen(false)}>
+              <span>DOWNLOAD APP</span>
             </Link>
 
             <div className="mobile-nav-group-title">STORE &amp; NUTRITION</div>
