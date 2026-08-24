@@ -20,11 +20,14 @@ function CheckoutSubmitBtn({ total }: { total: number }) {
 export default function CheckoutPage() {
   const { items, subtotal, freeShippingRemaining, clearCart, setExactQuantity } = useCart();
   const [mounted, setMounted] = useState(false);
+  const [idempotencyKey, setIdempotencyKey] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
+    // Generate a unique idempotency key for this checkout session
+    setIdempotencyKey(crypto.randomUUID());
   }, []);
 
   if (!mounted) return null; // Wait for hydration to access localStorage
@@ -76,6 +79,7 @@ export default function CheckoutPage() {
             <input type="hidden" name="cartSubtotal" value={subtotal} />
             <input type="hidden" name="deliveryFee" value={shippingCost} />
             <input type="hidden" name="total" value={grandTotal} />
+            <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
 
             {error && (
               <div className="auth-error" style={{ marginBottom: '20px' }}>
