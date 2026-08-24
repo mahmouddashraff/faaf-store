@@ -33,6 +33,7 @@ export async function fetchProducts(): Promise<Product[]> {
       name: v.name,
       price: v.price || undefined,
       inStock: v.in_stock,
+      stockQuantity: v.stock_quantity,
     })),
   }));
 }
@@ -68,6 +69,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
       name: v.name,
       price: v.price || undefined,
       inStock: v.in_stock,
+      stockQuantity: v.stock_quantity,
     })),
   };
 }

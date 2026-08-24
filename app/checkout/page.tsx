@@ -18,7 +18,7 @@ function CheckoutSubmitBtn({ total }: { total: number }) {
 }
 
 export default function CheckoutPage() {
-  const { items, subtotal, freeShippingRemaining, clearCart } = useCart();
+  const { items, subtotal, freeShippingRemaining, clearCart, setExactQuantity } = useCart();
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -49,7 +49,12 @@ export default function CheckoutPage() {
     const res = await submitCheckout(formData);
     if (res?.error) {
       setError(res.error);
-      if (res.details) {
+      
+      // If it's an out-of-stock error, adjust the cart automatically
+      if (res.outOfStockCartItemId && res.availableQuantity !== undefined) {
+        setExactQuantity(res.outOfStockCartItemId, res.availableQuantity);
+        alert(`${res.error}\n\nYour cart has been updated to the maximum available quantity.`);
+      } else if (res.details) {
         alert("Server Error Details:\n" + JSON.stringify(res.details, null, 2));
       }
     } else {

@@ -53,7 +53,11 @@ export async function submitCheckout(formData: FormData) {
 
     // 5. Verify sufficient stock
     if (dbVariant.stock_quantity < item.quantity) {
-      return { error: `Insufficient stock for ${dbVariant.name}. Only ${dbVariant.stock_quantity} remaining.` };
+      return { 
+        error: `Insufficient stock for ${dbVariant.name}. Only ${dbVariant.stock_quantity} remaining.`,
+        outOfStockCartItemId: item.cartItemId,
+        availableQuantity: dbVariant.stock_quantity
+      };
     }
 
     // 6. Use DATABASE prices, not prices supplied by the browser

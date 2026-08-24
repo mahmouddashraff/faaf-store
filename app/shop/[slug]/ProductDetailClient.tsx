@@ -13,6 +13,8 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   const [isAdded, setIsAdded] = useState(false);
 
   const activePrice = selectedVariant.price ?? product.price;
+  const maxQty = selectedVariant.stockQuantity ?? Infinity;
+  const isOutOfStock = selectedVariant.inStock === false || (selectedVariant.stockQuantity !== undefined && selectedVariant.stockQuantity <= 0);
 
   const handleAddToCart = () => {
     addItem(product, selectedVariant, quantity);
@@ -43,8 +45,8 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             }}
           >
             {product.variants.map((v) => (
-              <option key={v.id} value={v.id} disabled={v.inStock === false}>
-                {v.name} {v.inStock === false ? '(Out of Stock)' : ''}
+              <option key={v.id} value={v.id} disabled={v.inStock === false || (v.stockQuantity !== undefined && v.stockQuantity <= 0)}>
+                {v.name} {(v.inStock === false || (v.stockQuantity !== undefined && v.stockQuantity <= 0)) ? '(Out of Stock)' : ''}
               </option>
             ))}
           </select>
@@ -55,7 +57,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
           <div className="qty-selector">
             <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button>
             <span>{quantity}</span>
-            <button onClick={() => setQuantity(quantity + 1)}>+</button>
+            <button onClick={() => setQuantity(quantity >= maxQty ? maxQty : quantity + 1)}>+</button>
           </div>
         </div>
       </div>
@@ -63,9 +65,9 @@ export default function ProductDetailClient({ product }: { product: Product }) {
       <button
         className={`primary-btn full-width add-to-cart-hero ${isAdded ? 'added' : ''}`}
         onClick={handleAddToCart}
-        disabled={selectedVariant.inStock === false}
+        disabled={isOutOfStock}
       >
-        {isAdded ? '✓ ADDED TO BAG' : selectedVariant.inStock === false ? 'OUT OF STOCK' : 'ADD TO BAG'}
+        {isAdded ? '✓ ADDED TO BAG' : isOutOfStock ? 'OUT OF STOCK' : 'ADD TO BAG'}
       </button>
       
       <div className="product-trust-badges">

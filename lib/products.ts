@@ -3,6 +3,7 @@ export type ProductVariant = {
   name: string;
   price?: number;
   inStock?: boolean;
+  stockQuantity?: number;
 };
 
 export type Product = {

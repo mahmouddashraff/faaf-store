@@ -53,7 +53,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setItems(JSON.parse(saved));
+        const parsedItems: CartItem[] = JSON.parse(saved);
+        // Rule 7: Capping persistence
+        const cappedItems = parsedItems.map(item => {
+          const maxQty = item.variant.stockQuantity ?? Infinity;
+          if (item.quantity > maxQty) {
+            return { ...item, quantity: maxQty };
+          }
+          return item;
+        }).filter(item => item.quantity > 0 && item.variant.inStock !== false);
+        setItems(cappedItems);
       }
     } catch (e) {
       console.error('Error loading cart from storage', e);
@@ -85,6 +94,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = (product: Product, variant?: ProductVariant, quantity = 1) => {
     const selectedVariant = variant || product.variants[0];
+    
+    // Check stock globally
+    if (selectedVariant.stockQuantity !== undefined && selectedVariant.stockQuantity <= 0) {
+      alert("This item is out of stock.");
+      return;
+    }
+    if (selectedVariant.inStock === false) {
+      alert("This item is out of stock.");
+      return;
+    }
+
     const unitPrice = selectedVariant.price ?? product.price;
     const cartItemId = `${product.id}-${selectedVariant.id}`;
 
@@ -92,19 +112,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const existingIndex = prevItems.findIndex(item => item.cartItemId === cartItemId);
       if (existingIndex > -1) {
         const updated = [...prevItems];
+        const currentQty = updated[existingIndex].quantity;
+        const maxQty = selectedVariant.stockQuantity ?? Infinity;
+        
+        let newQty = currentQty + quantity;
+        if (newQty > maxQty) {
+          alert(`Only ${maxQty} available. You cannot add more to your cart.`);
+          newQty = maxQty;
+        }
+
         updated[existingIndex] = {
           ...updated[existingIndex],
-          quantity: updated[existingIndex].quantity + quantity,
+          quantity: newQty,
         };
         return updated;
       } else {
+        const maxQty = selectedVariant.stockQuantity ?? Infinity;
+        let initialQty = quantity;
+        if (initialQty > maxQty) {
+          alert(`Only ${maxQty} available.`);
+          initialQty = maxQty;
+        }
         return [
           ...prevItems,
           {
             cartItemId,
             product,
             variant: selectedVariant,
-            quantity,
+            quantity: initialQty,
             unitPrice,
           },
         ];
@@ -128,7 +163,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       prev
         .map(item => {
           if (item.cartItemId === cartItemId) {
-            const newQty = item.quantity + delta;
+            const maxQty = item.variant.stockQuantity ?? Infinity;
+            let newQty = item.quantity + delta;
+            
+            if (newQty > maxQty) {
+              newQty = maxQty;
+            }
             return newQty > 0 ? { ...item, quantity: newQty } : null;
           }
           return item;
@@ -143,9 +183,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     setItems(prev =>
-      prev.map(item =>
-        item.cartItemId === cartItemId ? { ...item, quantity } : item
-      )
+      prev.map(item => {
+        if (item.cartItemId === cartItemId) {
+          const maxQty = item.variant.stockQuantity ?? Infinity;
+          let newQty = quantity;
+          if (newQty > maxQty) {
+            newQty = maxQty;
+          }
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      })
     );
   };
 
