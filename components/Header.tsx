@@ -108,6 +108,19 @@ export default function Header() {
 
           {/* Action Icons */}
           <div className="header-actions">
+            {/* Account Trigger */}
+            <Link
+              href="/account"
+              className="action-icon-btn"
+              aria-label="My Account"
+              title="My Account"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </Link>
+
             {/* Search Trigger */}
             <button
               className="action-icon-btn"
@@ -155,6 +168,9 @@ export default function Header() {
           <nav className="mobile-links-list">
             <Link href="/" className="mobile-link" onClick={() => setMenuOpen(false)}>
               <span>🏠 Home</span>
+            </Link>
+            <Link href="/account" className="mobile-link" onClick={() => setMenuOpen(false)}>
+              <span>👤 My Account</span>
             </Link>
             <Link href="/shop" className="mobile-link" onClick={() => setMenuOpen(false)}>
               <span>⚡ Shop All Products</span>

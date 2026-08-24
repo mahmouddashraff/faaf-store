@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Product, ProductVariant, formatPrice } from '../lib/products';
 import { useCart } from '../context/CartContext';
 
@@ -32,7 +33,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <article className="premium-product-card">
       {/* Product Image / Art Showcase */}
-      <div className={`product-visual-container ${product.accent}`}>
+      <Link href={`/shop/${product.slug}`} className={`product-visual-container ${product.accent}`}>
         {/* Floating Badges */}
         <div className="product-badges-row">
           {product.tag && (
@@ -78,7 +79,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </span>
           ))}
         </div>
-      </div>
+      </Link>
 
       {/* Product Information Body */}
       <div className="product-card-body">
@@ -93,7 +94,9 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Product Title */}
-        <h3 className="product-title">{product.name}</h3>
+        <Link href={`/shop/${product.slug}`}>
+          <h3 className="product-title">{product.name}</h3>
+        </Link>
 
         {/* Short Description */}
         <p className="product-short-desc">{product.shortDescription}</p>

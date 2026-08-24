@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../lib/products';
 
@@ -45,18 +46,11 @@ export default function CartDrawer() {
     };
   }, [isCartOpen]);
 
-  const handleCheckout = () => {
-    setIsCheckingOut(true);
-    setTimeout(() => {
-      setIsCheckingOut(false);
-      setOrderComplete(true);
-      clearCart();
-    }, 1200);
-  };
+  const router = useRouter();
 
-  const handleResetCheckout = () => {
-    setOrderComplete(false);
+  const handleCheckout = () => {
     closeCart();
+    router.push('/checkout');
   };
 
   if (!isCartOpen) return null;
@@ -105,21 +99,8 @@ export default function CartDrawer() {
           </div>
         </div>
 
-        {/* Order Complete Screen */}
-        {orderComplete ? (
-          <div className="cart-complete-state">
-            <div className="success-icon-wrap">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </div>
-            <h3>ORDER CONFIRMED!</h3>
-            <p>Thank you for shopping with FAAF Fitness Magic. Your order has been placed in simulation mode.</p>
-            <button className="primary-btn" onClick={handleResetCheckout}>
-              CONTINUE BROWSING
-            </button>
-          </div>
-        ) : items.length === 0 ? (
+        {/* Order Complete Screen is now a separate page */}
+        {items.length === 0 ? (
           /* Empty Cart State */
           <div className="cart-empty-state">
             <div className="empty-icon-wrap">
@@ -206,11 +187,10 @@ export default function CartDrawer() {
               </div>
 
               <button
-                className={`checkout-btn ${isCheckingOut ? 'loading' : ''}`}
+                className="checkout-btn"
                 onClick={handleCheckout}
-                disabled={isCheckingOut}
               >
-                {isCheckingOut ? 'PROCESSING ORDER...' : `PROCEED TO CHECKOUT • ${formatPrice(grandTotal)}`}
+                PROCEED TO CHECKOUT • {formatPrice(grandTotal)}
               </button>
 
               <div className="cart-trust-badges">
