@@ -93,6 +93,16 @@ export async function submitCheckout(formData: FormData) {
 
   const orderNumber = `FAAF-${Math.floor(100000 + Math.random() * 900000)}`;
 
+  // 9b. Safe mapping for payment method to match Postgres enum
+  const frontendPaymentMethod = formData.get('paymentMethod') as string;
+  let dbPaymentMethod = 'cash_on_delivery'; // default fallback
+  
+  if (frontendPaymentMethod === 'cod' || frontendPaymentMethod === 'Cash on Delivery') {
+    dbPaymentMethod = 'cash_on_delivery';
+  } else if (frontendPaymentMethod) {
+    dbPaymentMethod = frontendPaymentMethod;
+  }
+
   const orderData = {
     order_number: orderNumber,
     user_id: user ? user.id : null,
@@ -108,7 +118,7 @@ export async function submitCheckout(formData: FormData) {
     subtotal: serverSubtotal,
     delivery_fee: deliveryFee,
     total: total,
-    payment_method: 'cash_on_delivery',
+    payment_method: dbPaymentMethod,
     payment_status: 'pending',
     order_status: 'pending',
     idempotency_key: formData.get('idempotencyKey') || null,
