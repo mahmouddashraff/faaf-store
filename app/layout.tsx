@@ -8,6 +8,8 @@ import SearchModal from '../components/SearchModal';
 import Chatbot from '../components/Chatbot';
 
 import { CartProvider } from '../context/CartContext';
+import { AuthProvider } from '../components/AuthProvider';
+import { createClient } from '@/utils/supabase/server';
 import type { Viewport } from 'next';
 
 export const viewport: Viewport = {
@@ -43,35 +45,41 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  const initialUser = session?.user ?? null;
+
   return (
     <html lang="en">
       <body>
-        <CartProvider>
+        <AuthProvider initialUser={initialUser}>
+          <CartProvider>
 
-          {/* Website Header */}
-          <Header />
+            {/* Website Header */}
+            <Header />
 
-          {/* Shopping Cart */}
-          <CartDrawer />
+            {/* Shopping Cart */}
+            <CartDrawer />
 
-          {/* Search */}
-          <SearchModal />
+            {/* Search */}
+            <SearchModal />
 
-          {/* Main Website Content */}
-          {children}
+            {/* Main Website Content */}
+            {children}
 
-          {/* Footer */}
-          <Footer />
+            {/* Footer */}
+            <Footer />
 
-          {/* FAAF AI Chatbot */}
-          <Chatbot />
+            {/* FAAF AI Chatbot */}
+            <Chatbot />
 
-        </CartProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -9,6 +9,8 @@ import MealPlanCard from '../components/MealPlanCard';
 import Newsletter from '../components/Newsletter';
 import CategoryInquiryBanner from '../components/CategoryInquiry';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../components/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 const categoriesList = [
   { name: 'Meal Plans', slug: 'meal-plans', count: '5 Custom Plans', accentClass: 'mealplans', href: '/meal-plans' },
@@ -22,8 +24,21 @@ const categoriesList = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'ALL' | 'BESTSELLER' | 'Powder' | 'Supplements' | 'Bundles'>('ALL');
   const { addItem } = useCart();
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   const heroProduct = products[0]; // Pure Whey Isolate
+
+  const handleHeroQuickAdd = () => {
+    if (loading) return;
+    if (!user) {
+      const intent = { product: heroProduct, variant: heroProduct.variants[0], quantity: 1 };
+      sessionStorage.setItem('pendingCartAdd', JSON.stringify(intent));
+      router.push('/login');
+      return;
+    }
+    addItem(heroProduct);
+  };
 
   const filteredFeaturedProducts = products.filter(p => {
     if (activeTab === 'ALL') return true;
@@ -104,7 +119,7 @@ export default function Home() {
                 </div>
                 <button
                   className="quick-shop-btn"
-                  onClick={() => addItem(heroProduct)}
+                  onClick={handleHeroQuickAdd}
                 >
                   QUICK ADD +
                 </button>

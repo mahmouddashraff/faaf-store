@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Product, ProductVariant, formatPrice } from '../../../lib/products';
 import { useCart } from '../../../context/CartContext';
+import { useAuth } from '../../../components/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 export default function ProductDetailClient({ product }: { product: Product }) {
   const { addItem, openCart } = useCart();
@@ -12,11 +14,25 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
 
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
   const activePrice = selectedVariant.price ?? product.price;
   const maxQty = selectedVariant.stockQuantity ?? Infinity;
   const isOutOfStock = selectedVariant.inStock === false || (selectedVariant.stockQuantity !== undefined && selectedVariant.stockQuantity <= 0);
 
   const handleAddToCart = () => {
+    if (loading) return; // wait for auth
+    
+    if (!user) {
+      // Unauthenticated, save intent and redirect
+      const intent = { product, variant: selectedVariant, quantity };
+      sessionStorage.setItem('pendingCartAdd', JSON.stringify(intent));
+      router.push('/login');
+      return;
+    }
+
+    // Authenticated, add to cart
     addItem(product, selectedVariant, quantity);
     setIsAdded(true);
     openCart();

@@ -16,6 +16,10 @@ export async function submitCheckout(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  if (!user) {
+    return { error: 'Authentication required to checkout. Please log in or create an account.' };
+  }
+
   // 2. Extract and validate fields
   const cartItemsStr = formData.get('cartItems') as string;
   if (!cartItemsStr) {
@@ -105,7 +109,7 @@ export async function submitCheckout(formData: FormData) {
 
   const orderData = {
     order_number: orderNumber,
-    user_id: user ? user.id : null,
+    user_id: user.id,
     customer_first_name: formData.get('firstName'),
     customer_last_name: formData.get('lastName'),
     customer_email: formData.get('email'),
@@ -175,12 +179,18 @@ export async function submitCheckout(formData: FormData) {
       `;
 
       // Customer Email
-      await resend.emails.send({
+      const customerRes = await resend.emails.send({
         from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
         to: [orderData.customer_email as string],
         subject: `Your FAAF Order ${orderNumber} is Confirmed!`,
         html: emailHtml
       });
+      
+      if (customerRes.error) {
+        console.error('Customer Email Resend API Error:', JSON.stringify(customerRes.error));
+      } else {
+        console.log('Customer Email Success:', customerRes.data);
+      }
 
       // Admin Email
       await resend.emails.send({

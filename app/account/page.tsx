@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { logout } from '../actions/auth';
+import IntentRestorer from './IntentRestorer';
 
 export default async function AccountPage() {
   const supabase = await createClient();
@@ -31,6 +32,7 @@ export default async function AccountPage() {
 
   return (
     <main className="page-main account-page">
+      <IntentRestorer />
       <div className="account-container">
         <header className="account-header">
           <div>
@@ -44,7 +46,7 @@ export default async function AccountPage() {
               </Link>
             )}
             <form action={logout}>
-              <button type="submit" className="outline-btn">Sign Out</button>
+              <button type="submit" className="secondary-btn">Sign Out</button>
             </form>
           </div>
         </header>

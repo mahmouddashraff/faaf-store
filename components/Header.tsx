@@ -5,12 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../components/AuthProvider';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { totalCount, openCart, openSearch } = useCart();
   const pathname = usePathname();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -110,10 +112,10 @@ export default function Header() {
           <div className="header-actions">
             {/* Account Trigger */}
             <Link
-              href="/account"
+              href={user ? "/account" : "/login"}
               className="action-icon-btn"
-              aria-label="My Account"
-              title="My Account"
+              aria-label={user ? "My Account" : "Login"}
+              title={user ? "My Account" : "Login"}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -169,9 +171,22 @@ export default function Header() {
             <Link href="/" className="mobile-link" onClick={() => setMenuOpen(false)}>
               <span>🏠 Home</span>
             </Link>
-            <Link href="/account" className="mobile-link" onClick={() => setMenuOpen(false)}>
-              <span>👤 My Account</span>
-            </Link>
+            
+            {user ? (
+              <Link href="/account" className="mobile-link" onClick={() => setMenuOpen(false)}>
+                <span>👤 My Account</span>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="mobile-link" onClick={() => setMenuOpen(false)}>
+                  <span>👤 Login</span>
+                </Link>
+                <Link href="/register" className="mobile-link" onClick={() => setMenuOpen(false)}>
+                  <span>✨ Create Account</span>
+                </Link>
+              </>
+            )}
+
             <Link href="/shop" className="mobile-link" onClick={() => setMenuOpen(false)}>
               <span>⚡ Shop All Products</span>
             </Link>
