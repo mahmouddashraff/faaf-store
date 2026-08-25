@@ -7349,6 +7349,7 @@ img {
 
   .admin-main {
     padding: 15px;
+    padding-bottom: 80px;
     width: 100%;
     max-width: 100vw;
   }
@@ -7399,6 +7400,48 @@ img {
   .admin-form-group {
     flex-direction: column !important;
     gap: 15px !important;
+  }
+}
+
+.admin-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-list-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.admin-list-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .admin-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .admin-list-actions {
+    flex-direction: column;
+  }
+
+  .admin-list-actions input {
+    width: 100% !important;
+  }
+  
+  .admin-list-actions button {
+    width: 100%;
+  }
+
+  .admin-list-tabs {
+    flex-direction: column;
   }
 }
 

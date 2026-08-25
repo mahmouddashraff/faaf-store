@@ -97,7 +97,7 @@ export default function ProductsTab({ products }: { products: any[] }) {
     const isNew = !editingProduct.id;
     return (
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div className="admin-list-header">
           <h2>{isNew ? 'Create New Product' : `Edit ${editingProduct.name}`}</h2>
           <button onClick={() => setEditingProduct(null)} className="secondary-btn light">← Back to List</button>
         </div>
@@ -218,9 +218,9 @@ export default function ProductsTab({ products }: { products: any[] }) {
   // LIST VIEW
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div className="admin-list-header">
         <h2 style={{ margin: 0 }}>Inventory & Products</h2>
-        <div style={{ display: 'flex', gap: '15px' }}>
+        <div className="admin-list-actions">
           <input 
             type="search" 
             placeholder="Search products..." 
@@ -233,7 +233,7 @@ export default function ProductsTab({ products }: { products: any[] }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+      <div className="admin-list-tabs">
         <button 
           onClick={() => setActiveTab('active')} 
           className={`secondary-btn ${activeTab === 'active' ? 'light' : ''}`}
