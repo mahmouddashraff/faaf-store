@@ -5,7 +5,8 @@ export async function fetchProducts(): Promise<Product[]> {
   const supabase = createClient();
   const { data: dbProducts, error } = await supabase
     .from('products')
-    .select('*, product_variants(*)');
+    .select('*, product_variants(*)')
+    .eq('is_archived', false);
 
   if (error || !dbProducts) {
     console.error('Error fetching products:', error);
@@ -21,6 +22,8 @@ export async function fetchProducts(): Promise<Product[]> {
     rating: p.rating,
     reviews: p.reviews,
     accent: p.accent,
+    image: p.image || undefined,
+    flavors: p.flavors ? p.flavors.split(',').map((f: string) => f.trim()).filter((f: string) => f) : [],
     category: p.category as any,
     tag: p.tag || undefined,
     shortDescription: p.short_description,
@@ -44,6 +47,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     .from('products')
     .select('*, product_variants(*)')
     .eq('slug', slug)
+    .eq('is_archived', false)
     .single();
 
   if (error || !p) return null;
@@ -57,6 +61,8 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     rating: p.rating,
     reviews: p.reviews,
     accent: p.accent,
+    image: p.image || undefined,
+    flavors: p.flavors ? p.flavors.split(',').map((f: string) => f.trim()).filter((f: string) => f) : [],
     category: p.category as any,
     tag: p.tag || undefined,
     shortDescription: p.short_description,

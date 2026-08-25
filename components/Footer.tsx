@@ -1,8 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { StoreSettings } from '@/lib/config';
 
-export default function Footer() {
+export default function Footer({ settings }: { settings?: StoreSettings | null }) {
+  const threshold = settings?.freeShippingThreshold || 99;
+  
   return (
     <footer className="site-footer">
       {/* Top Value Assurance Bar */}
@@ -12,7 +15,7 @@ export default function Footer() {
             <span className="assurance-icon">⚡</span>
             <div>
               <strong>FREE EXPRESS DELIVERY</strong>
-              <p>On all qualifying orders over $99</p>
+              <p>On all qualifying orders over ${threshold}</p>
             </div>
           </div>
           <div className="assurance-item">
@@ -55,15 +58,20 @@ export default function Footer() {
                 />
               </div>
               <div className="brand-text">
-                <span className="brand-name">FAAF</span>
-                <span className="brand-sub">FITNESS MAGIC</span>
+                <span className="brand-name">{settings?.storeName?.split(' ')[0] || 'FAAF'}</span>
+                <span className="brand-sub">{settings?.storeName?.split(' ').slice(1).join(' ') || 'FITNESS MAGIC'}</span>
               </div>
             </Link>
             <p className="footer-tagline">
               Engineering pure, science-backed athletic fuel and functional nutrition to empower your strongest self every single day.
             </p>
             <div className="footer-socials">
-              <span className="social-pill" title="Instagram">Instagram</span>
+              {settings?.socialInstagram && (
+                <a href={settings.socialInstagram} target="_blank" rel="noopener noreferrer" className="social-pill" title="Instagram">Instagram</a>
+              )}
+              {settings?.socialFacebook && (
+                <a href={settings.socialFacebook} target="_blank" rel="noopener noreferrer" className="social-pill" title="Facebook">Facebook</a>
+              )}
               <span className="social-pill" title="YouTube">YouTube</span>
               <span className="social-pill" title="TikTok">TikTok</span>
               <span className="social-pill" title="Twitter/X">X</span>
@@ -105,7 +113,7 @@ export default function Footer() {
               <li><Link href="/shop">Shipping Information</Link></li>
               <li><Link href="/shop">30-Day Returns Policy</Link></li>
               <li><Link href="/contact#faq">Frequently Asked Questions</Link></li>
-              <li><Link href="/contact">Contact Athlete Support</Link></li>
+              <li><Link href="/contact">Contact Athlete Support {settings?.contactEmail ? `(${settings.contactEmail})` : ''}</Link></li>
             </ul>
           </div>
         </div>
@@ -113,7 +121,7 @@ export default function Footer() {
         {/* Bottom Bar: Copyright & Payment Badges */}
         <div className="footer-bottom-bar">
           <div className="footer-copyright">
-            © {new Date().getFullYear()} FAAF Fitness Magic. All rights reserved. Built for champions.
+            © {new Date().getFullYear()} {settings?.storeName || 'FAAF Fitness Magic'}. All rights reserved. Built for champions.
           </div>
           <div className="footer-payments">
             <span className="payment-chip">VISA</span>

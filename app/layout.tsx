@@ -10,6 +10,7 @@ import Chatbot from '../components/Chatbot';
 import { CartProvider } from '../context/CartContext';
 import { AuthProvider } from '../components/AuthProvider';
 import { createClient } from '@/utils/supabase/server';
+import { fetchAppConfig, StoreSettings } from '@/lib/config';
 import type { Viewport } from 'next';
 
 export const viewport: Viewport = {
@@ -53,15 +54,18 @@ export default async function RootLayout({
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   const initialUser = session?.user ?? null;
+  
+  // Fetch global store settings for Header and Footer
+  const storeSettings = await fetchAppConfig<StoreSettings>('store_settings');
 
   return (
     <html lang="en">
       <body>
         <AuthProvider initialUser={initialUser}>
-          <CartProvider>
+          <CartProvider threshold={storeSettings?.freeShippingThreshold || 99}>
 
             {/* Website Header */}
-            <Header />
+            <Header settings={storeSettings} />
 
             {/* Shopping Cart */}
             <CartDrawer />
@@ -73,7 +77,7 @@ export default async function RootLayout({
             {children}
 
             {/* Footer */}
-            <Footer />
+            <Footer settings={storeSettings} />
 
             {/* FAAF AI Chatbot */}
             <Chatbot />

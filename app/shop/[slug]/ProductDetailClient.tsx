@@ -11,6 +11,9 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     product.variants[0] || { id: 'default', name: 'Standard' }
   );
+  const [selectedFlavor, setSelectedFlavor] = useState<string>(
+    product.flavors && product.flavors.length > 0 ? product.flavors[0] : ''
+  );
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -26,14 +29,14 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     
     if (!user) {
       // Unauthenticated, save intent and redirect
-      const intent = { product, variant: selectedVariant, quantity };
+      const intent = { product, variant: selectedVariant, quantity, flavor: selectedFlavor || undefined };
       sessionStorage.setItem('pendingCartAdd', JSON.stringify(intent));
       router.push('/login');
       return;
     }
 
     // Authenticated, add to cart
-    addItem(product, selectedVariant, quantity);
+    addItem(product, selectedVariant, quantity, selectedFlavor || undefined);
     setIsAdded(true);
     openCart();
     setTimeout(() => setIsAdded(false), 2000);
@@ -49,24 +52,52 @@ export default function ProductDetailClient({ product }: { product: Product }) {
       </div>
 
       <div className="product-options">
-        <div className="form-input-group">
-          <label htmlFor="variant-select">Select Option / Flavor</label>
-          <select
-            id="variant-select"
-            className="contact-select-field"
-            value={selectedVariant.id}
-            onChange={(e) => {
-              const v = product.variants.find(v => v.id === e.target.value);
-              if (v) setSelectedVariant(v);
-            }}
-          >
-            {product.variants.map((v) => (
-              <option key={v.id} value={v.id} disabled={v.inStock === false || (v.stockQuantity !== undefined && v.stockQuantity <= 0)}>
-                {v.name} {(v.inStock === false || (v.stockQuantity !== undefined && v.stockQuantity <= 0)) ? '(Out of Stock)' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
+        {product.variants.filter(v => v.name.toLowerCase() !== 'default' && v.name.toLowerCase() !== 'standard').length > 0 && (
+          <div className="form-input-group">
+            <label htmlFor="variant-select">Select Option</label>
+            <select
+              id="variant-select"
+              className="contact-select-field"
+              value={selectedVariant.id}
+              onChange={(e) => {
+                const v = product.variants.find(v => v.id === e.target.value);
+                if (v) setSelectedVariant(v);
+              }}
+            >
+              {product.variants.filter(v => v.name.toLowerCase() !== 'default' && v.name.toLowerCase() !== 'standard').map((v) => (
+                <option key={v.id} value={v.id} disabled={v.inStock === false || (v.stockQuantity !== undefined && v.stockQuantity <= 0)}>
+                  {v.name} {(v.inStock === false || (v.stockQuantity !== undefined && v.stockQuantity <= 0)) ? '(Out of Stock)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {product.flavors && product.flavors.length > 1 && (
+          <div className="form-input-group" style={{ marginTop: '15px' }}>
+            <label htmlFor="flavor-select">Select Flavor</label>
+            <select
+              id="flavor-select"
+              className="contact-select-field"
+              value={selectedFlavor}
+              onChange={(e) => setSelectedFlavor(e.target.value)}
+            >
+              {product.flavors.map((f, idx) => (
+                <option key={idx} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        
+        {product.flavors && product.flavors.length === 1 && (
+          <div className="form-input-group" style={{ marginTop: '15px' }}>
+            <div style={{ padding: '12px 15px', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'white' }}>
+               Flavor: <strong>{product.flavors[0]}</strong>
+            </div>
+          </div>
+        )}
 
         <div className="form-input-group" style={{ marginTop: '15px' }}>
           <label>Quantity</label>

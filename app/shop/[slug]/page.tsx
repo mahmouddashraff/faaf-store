@@ -19,8 +19,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
         {/* Left Column: Visuals */}
         <div className={`product-gallery-section bg-gradient-${product.accent}`}>
           <div className="product-main-visual">
-            <span className="product-hero-logo">FAAF</span>
             <div className="product-glow"></div>
+            {product.image ? (
+              <img 
+                src={product.image} 
+                alt={product.name} 
+                style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'relative', zIndex: 1 }} 
+              />
+            ) : (
+              <span className="product-hero-logo">FAAF</span>
+            )}
           </div>
         </div>
 

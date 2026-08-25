@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../lib/products';
+import { validateCouponAction } from '../app/actions/checkout';
 
 export default function CartDrawer() {
   const {
@@ -22,6 +23,10 @@ export default function CartDrawer() {
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [promoError, setPromoError] = useState('');
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const { appliedCoupon, discountAmount, grandTotal, setAppliedCoupon } = useCart();
 
   // Close drawer on Escape key
   useEffect(() => {
@@ -56,7 +61,24 @@ export default function CartDrawer() {
   if (!isCartOpen) return null;
 
   const shippingCost = freeShippingRemaining === 0 ? 0 : 9.99;
-  const grandTotal = subtotal + (items.length > 0 ? shippingCost : 0);
+  
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setIsApplyingPromo(true);
+    setPromoError('');
+    const res = await validateCouponAction(promoInput.trim().toUpperCase());
+    if (res.error) {
+      setPromoError(res.error);
+    } else if (res.coupon) {
+      if (subtotal < res.coupon.min_order_amount) {
+        setPromoError(`Minimum order of $${res.coupon.min_order_amount} required`);
+      } else {
+        setAppliedCoupon(res.coupon);
+        setPromoInput('');
+      }
+    }
+    setIsApplyingPromo(false);
+  };
 
   return (
     <div className="cart-drawer-overlay" onClick={closeCart} role="dialog" aria-modal="true" aria-label="Shopping Cart">
@@ -144,7 +166,9 @@ export default function CartDrawer() {
                       </button>
                     </div>
 
-                    <p className="cart-item-variant">{item.variant.name}</p>
+                    <p className="cart-item-variant">
+                      {item.variant.name} {item.flavor && `| Flavor: ${item.flavor}`}
+                    </p>
 
                     <div className="cart-item-bottom">
                       <div className="cart-qty-stepper">
@@ -173,10 +197,55 @@ export default function CartDrawer() {
 
             {/* Footer Summary */}
             <div className="cart-drawer-footer">
+              <div className="cart-promo-section" style={{ marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {!appliedCoupon ? (
+                  <>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input 
+                        type="text" 
+                        value={promoInput} 
+                        onChange={e => setPromoInput(e.target.value)} 
+                        placeholder="Promo Code" 
+                        className="contact-input-field"
+                        style={{ padding: '8px', flex: 1, textTransform: 'uppercase' }}
+                      />
+                      <button 
+                        onClick={handleApplyPromo} 
+                        className="primary-btn" 
+                        style={{ padding: '8px 16px', minWidth: '80px' }}
+                        disabled={isApplyingPromo}
+                      >
+                        {isApplyingPromo ? '...' : 'APPLY'}
+                      </button>
+                    </div>
+                    {promoError && <span style={{ color: '#ff4d4d', fontSize: '0.85rem' }}>{promoError}</span>}
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '4px' }}>
+                    <div>
+                      <strong style={{ color: 'var(--gold-500)' }}>{appliedCoupon.code}</strong> applied!
+                    </div>
+                    <button 
+                      onClick={() => setAppliedCoupon(null)}
+                      style={{ color: '#ff4d4d', background: 'none', border: 'none', fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="summary-line">
                 <span>Subtotal</span>
                 <strong>{formatPrice(subtotal)}</strong>
               </div>
+              
+              {appliedCoupon && (
+                <div className="summary-line" style={{ color: 'var(--gold-500)' }}>
+                  <span>Coupon ({appliedCoupon.code})</span>
+                  <strong>-{formatPrice(discountAmount)}</strong>
+                </div>
+              )}
               <div className="summary-line">
                 <span>Estimated Shipping</span>
                 <span>{shippingCost === 0 ? <strong className="text-free">FREE</strong> : formatPrice(shippingCost)}</span>

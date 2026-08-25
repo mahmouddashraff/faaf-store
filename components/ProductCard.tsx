@@ -12,6 +12,9 @@ export default function ProductCard({ product }: { product: Product }) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     product.variants[0] || { id: 'default', name: 'Standard' }
   );
+  const [selectedFlavor, setSelectedFlavor] = useState<string>(
+    product.flavors && product.flavors.length > 0 ? product.flavors[0] : ''
+  );
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -25,14 +28,14 @@ export default function ProductCard({ product }: { product: Product }) {
     
     if (!user) {
       // Unauthenticated, save intent and redirect
-      const intent = { product, variant: selectedVariant, quantity };
+      const intent = { product, variant: selectedVariant, quantity, flavor: selectedFlavor || undefined };
       sessionStorage.setItem('pendingCartAdd', JSON.stringify(intent));
       router.push('/login');
       return;
     }
 
     // Authenticated, add to cart
-    addItem(product, selectedVariant, quantity);
+    addItem(product, selectedVariant, quantity, selectedFlavor || undefined);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -126,7 +129,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Variant Selector */}
-        {product.variants.length > 1 && (
+        {product.variants.filter(v => v.name.toLowerCase() !== 'default' && v.name.toLowerCase() !== 'standard').length > 0 && (
           <div className="product-variant-picker">
             <label htmlFor={`variant-${product.id}`} className="sr-only">
               Select Option
@@ -137,12 +140,40 @@ export default function ProductCard({ product }: { product: Product }) {
               onChange={handleVariantChange}
               className="variant-select-dropdown"
             >
-              {product.variants.map(v => (
+              {product.variants.filter(v => v.name.toLowerCase() !== 'default' && v.name.toLowerCase() !== 'standard').map(v => (
                 <option key={v.id} value={v.id}>
                   {v.name} {v.price ? `(${formatPrice(v.price)})` : ''}
                 </option>
               ))}
             </select>
+          </div>
+        )}
+
+        {/* Flavor Selector */}
+        {product.flavors && product.flavors.length > 1 && (
+          <div className="product-variant-picker" style={{ marginTop: '10px' }}>
+            <label htmlFor={`flavor-${product.id}`} className="sr-only">
+              Select Flavor
+            </label>
+            <select
+              id={`flavor-${product.id}`}
+              value={selectedFlavor}
+              onChange={(e) => setSelectedFlavor(e.target.value)}
+              className="variant-select-dropdown"
+            >
+              <option disabled value="">Select Flavor</option>
+              {product.flavors.map((f, idx) => (
+                <option key={idx} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        
+        {product.flavors && product.flavors.length === 1 && (
+          <div className="product-flavor-single" style={{ marginTop: '10px', fontSize: '0.9rem', color: 'var(--silver-400)' }}>
+            Flavor: <strong>{product.flavors[0]}</strong>
           </div>
         )}
 

@@ -22,6 +22,7 @@ export type Product = {
   nutritionHighlights: string[];
   variants: ProductVariant[];
   image?: string;
+  flavors?: string[];
 };
 
 export const products: Product[] = [

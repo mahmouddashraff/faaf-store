@@ -28,10 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           FAAF Admin
         </div>
         <nav className="admin-nav">
-          <Link href="/admin">Dashboard</Link>
-          <Link href="/admin/orders">Orders</Link>
-          <Link href="/admin/products">Inventory</Link>
-          <Link href="/admin/reviews">Reviews</Link>
+          <Link href="/admin">Control Center</Link>
           <Link href="/account">Exit Admin</Link>
         </nav>
       </aside>

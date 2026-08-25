@@ -9,6 +9,15 @@ export interface CartItem {
   variant: ProductVariant;
   quantity: number;
   unitPrice: number;
+  flavor?: string;
+}
+
+export interface Coupon {
+  id?: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  min_order_amount: number;
 }
 
 interface CartContextType {
@@ -18,6 +27,9 @@ interface CartContextType {
   freeShippingThreshold: number;
   freeShippingRemaining: number;
   freeShippingProgress: number;
+  appliedCoupon: Coupon | null;
+  discountAmount: number;
+  grandTotal: number;
   isCartOpen: boolean;
   isSearchOpen: boolean;
   searchQuery: string;
@@ -28,24 +40,25 @@ interface CartContextType {
   openSearch: (initialQuery?: string) => void;
   closeSearch: () => void;
   setSearchQuery: (query: string) => void;
-  addItem: (product: Product, variant?: ProductVariant, quantity?: number) => void;
+  addItem: (product: Product, variant?: ProductVariant, quantity?: number, flavor?: string) => void;
   removeItem: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, delta: number) => void;
   setExactQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
+  setAppliedCoupon: (coupon: Coupon | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'faaf_cart_items_v2';
-const FREE_SHIPPING_THRESHOLD = 99;
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children, threshold = 99 }: { children: React.ReactNode, threshold?: number }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [lastAddedItem, setLastAddedItem] = useState<{ product: Product; variant: ProductVariant } | null>(null);
+  const [appliedCoupon, setAppliedCouponState] = useState<Coupon | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Hydrate from localStorage
@@ -67,6 +80,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error('Error loading cart from storage', e);
     }
+    try {
+      const savedCoupon = localStorage.getItem('faaf_cart_coupon');
+      if (savedCoupon) {
+        setAppliedCouponState(JSON.parse(savedCoupon));
+      }
+    } catch (e) {}
     setIsHydrated(true);
   }, []);
 
@@ -92,7 +111,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsSearchOpen(false);
   };
 
-  const addItem = (product: Product, variant?: ProductVariant, quantity = 1) => {
+  const addItem = (product: Product, variant?: ProductVariant, quantity = 1, flavor?: string) => {
     const selectedVariant = variant || product.variants[0];
     
     // Check stock globally
@@ -106,7 +125,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     const unitPrice = selectedVariant.price ?? product.price;
-    const cartItemId = `${product.id}-${selectedVariant.id}`;
+    const flavorSuffix = flavor ? `-${flavor}` : '';
+    const cartItemId = `${product.id}-${selectedVariant.id}${flavorSuffix}`;
 
     setItems(prevItems => {
       const existingIndex = prevItems.findIndex(item => item.cartItemId === cartItemId);
@@ -141,6 +161,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             variant: selectedVariant,
             quantity: initialQty,
             unitPrice,
+            flavor,
           },
         ];
       }
@@ -203,8 +224,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const freeShippingProgress = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
+  
+  // Calculate discount
+  let discountAmount = 0;
+  if (appliedCoupon && subtotal >= appliedCoupon.min_order_amount) {
+    if (appliedCoupon.discount_type === 'percentage') {
+      discountAmount = subtotal * (appliedCoupon.discount_value / 100);
+    } else if (appliedCoupon.discount_type === 'fixed') {
+      discountAmount = appliedCoupon.discount_value;
+    }
+    discountAmount = Math.min(discountAmount, subtotal);
+  } else if (appliedCoupon && subtotal < appliedCoupon.min_order_amount) {
+    // Subtotal dropped below min order value
+    setAppliedCouponState(null);
+    localStorage.removeItem('faaf_cart_coupon');
+  }
+
+  const freeShippingRemaining = Math.max(0, threshold - subtotal);
+  const freeShippingProgress = Math.min(100, Math.round((subtotal / threshold) * 100));
+  const shippingCost = freeShippingRemaining === 0 ? 0 : 9.99;
+  const grandTotal = items.length > 0 ? (subtotal - discountAmount + shippingCost) : 0;
+
+  const setAppliedCoupon = (coupon: Coupon | null) => {
+    setAppliedCouponState(coupon);
+    if (coupon) {
+      localStorage.setItem('faaf_cart_coupon', JSON.stringify(coupon));
+    } else {
+      localStorage.removeItem('faaf_cart_coupon');
+    }
+  };
 
   return (
     <CartContext.Provider
@@ -212,9 +260,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items,
         totalCount,
         subtotal,
-        freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
+        freeShippingThreshold: threshold,
         freeShippingRemaining,
         freeShippingProgress,
+        appliedCoupon,
+        discountAmount,
+        grandTotal,
         isCartOpen,
         isSearchOpen,
         searchQuery,
@@ -230,6 +281,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateQuantity,
         setExactQuantity,
         clearCart,
+        setAppliedCoupon,
       }}
     >
       {children}

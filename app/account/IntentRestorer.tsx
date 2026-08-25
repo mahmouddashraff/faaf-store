@@ -14,9 +14,9 @@ export default function IntentRestorer() {
     const pendingItemStr = sessionStorage.getItem('pendingCartAdd');
     if (pendingItemStr) {
       try {
-        const { product, variant, quantity } = JSON.parse(pendingItemStr);
+        const { product, variant, quantity, flavor } = JSON.parse(pendingItemStr);
         if (product && variant && quantity) {
-          addItem(product, variant, quantity);
+          addItem(product, variant, quantity, flavor);
           openCart();
         }
       } catch (err) {

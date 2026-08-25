@@ -6,8 +6,9 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../components/AuthProvider';
+import { StoreSettings } from '@/lib/config';
 
-export default function Header() {
+export default function Header({ settings }: { settings?: StoreSettings | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { totalCount, openCart, openSearch } = useCart();
@@ -27,17 +28,19 @@ export default function Header() {
     setMenuOpen(false);
   }, [pathname]);
 
+  const threshold = settings?.freeShippingThreshold || 99;
+
   return (
     <>
       {/* Announcement Bar */}
-      <div className="announcement-bar">
-        <div className="announcement-content">
-          <span className="announcement-badge">LIMITED TIME</span>
-          <span>⚡ FREE Express Delivery on orders over $99</span>
-          <span className="announcement-divider">•</span>
-          <span className="promo-code">Use Code <strong>MAGIC15</strong> for 15% Off</span>
+      {settings?.announcementActive && (
+        <div className="announcement-bar">
+          <div className="announcement-content">
+            <span className="announcement-badge">LIMITED TIME</span>
+            <span>{settings.announcementText}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Sticky Header */}
       <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
@@ -66,8 +69,8 @@ export default function Header() {
               />
             </div>
             <div className="brand-text">
-              <span className="brand-name">FAAF</span>
-              <span className="brand-sub">FITNESS MAGIC</span>
+              <span className="brand-name">{settings?.storeName?.split(' ')[0] || 'FAAF'}</span>
+              <span className="brand-sub">{settings?.storeName?.split(' ').slice(1).join(' ') || 'FITNESS MAGIC'}</span>
             </div>
           </Link>
 
@@ -227,7 +230,7 @@ export default function Header() {
           </nav>
 
           <div className="mobile-nav-footer">
-            <p>⚡ FREE Express Shipping Over $99</p>
+            <p>⚡ FREE Express Shipping Over ${threshold}</p>
             <button className="primary-btn full-width" onClick={() => { setMenuOpen(false); openCart(); }}>
               VIEW CART ({totalCount})
             </button>

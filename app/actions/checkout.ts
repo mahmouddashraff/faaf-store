@@ -4,10 +4,26 @@ import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { redirect } from 'next/navigation';
 import { Resend } from 'resend';
+import { fetchAppConfig, StoreSettings } from '@/lib/config';
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const contactEmail = process.env.CONTACT_EMAIL || 'elkberfahd@gmail.com';
+export async function validateCouponAction(code: string) {
+  const adminAuth = createAdminClient();
+  const { data: coupon, error } = await adminAuth
+    .from('promotions')
+    .select('*')
+    .eq('code', code)
+    .eq('active', true)
+    .single();
+    
+  if (error || !coupon) {
+    return { error: 'Invalid or inactive coupon' };
+  }
+  
+  return { success: true, coupon };
+}
 
 export async function submitCheckout(formData: FormData) {
   // 1. Initialize clients
@@ -41,7 +57,7 @@ export async function submitCheckout(formData: FormData) {
   const variantIds = items.map((item: any) => item.variant.id);
   const { data: dbVariants, error: fetchError } = await adminAuth
     .from('product_variants')
-    .select('*, products(name, price)')
+    .select('*, products(name, price, flavors)')
     .in('variant_id', variantIds);
 
   if (fetchError || !dbVariants || dbVariants.length === 0) {
@@ -73,6 +89,14 @@ export async function submitCheckout(formData: FormData) {
     const priceAtPurchase = dbVariant.price !== null ? dbVariant.price : dbVariant.products.price;
     serverSubtotal += priceAtPurchase * item.quantity;
 
+    // Verify flavor if selected
+    if (item.flavor) {
+      const allowedFlavors = dbVariant.products.flavors ? dbVariant.products.flavors.split(',').map((f: string) => f.trim()).filter((f: string) => f) : [];
+      if (allowedFlavors.length > 0 && !allowedFlavors.includes(item.flavor)) {
+        return { error: `Invalid flavor selected for ${dbVariant.products.name}.` };
+      }
+    }
+
     validatedOrderItems.push({
       product_id: dbVariant.product_id,
       variant_id: dbVariant.id, // Must use the UUID, not the text slug
@@ -80,6 +104,7 @@ export async function submitCheckout(formData: FormData) {
       variant_name: dbVariant.name,
       price_at_purchase: priceAtPurchase,
       quantity: item.quantity,
+      flavor: item.flavor || null,
       // For stock deduction later
       current_stock: dbVariant.stock_quantity,
       text_slug: dbVariant.variant_id
@@ -90,10 +115,29 @@ export async function submitCheckout(formData: FormData) {
   // (Done above)
 
   // 8. Calculate delivery fee server-side
-  const deliveryFee = serverSubtotal >= 99 ? 0 : 9.99;
+  const settings = await fetchAppConfig<StoreSettings>('store_settings');
+  const threshold = settings?.freeShippingThreshold ?? 99;
+  const standardFee = settings?.shippingFee ?? 9.99;
+  
+  const deliveryFee = serverSubtotal >= threshold ? 0 : standardFee;
 
   // 9. Calculate total server-side
-  const total = serverSubtotal + deliveryFee;
+  let finalDiscountAmount = 0;
+  const couponCode = formData.get('couponCode') as string;
+  
+  if (couponCode) {
+    const res = await validateCouponAction(couponCode);
+    if (res.coupon && serverSubtotal >= res.coupon.min_order_amount) {
+      if (res.coupon.discount_type === 'percentage') {
+        finalDiscountAmount = serverSubtotal * (res.coupon.discount_value / 100);
+      } else if (res.coupon.discount_type === 'fixed') {
+        finalDiscountAmount = res.coupon.discount_value;
+      }
+      finalDiscountAmount = Math.min(finalDiscountAmount, serverSubtotal);
+    }
+  }
+
+  const total = serverSubtotal - finalDiscountAmount + deliveryFee;
 
   const orderNumber = `FAAF-${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -126,6 +170,8 @@ export async function submitCheckout(formData: FormData) {
     payment_status: 'pending',
     order_status: 'pending',
     idempotency_key: formData.get('idempotencyKey') || null,
+    coupon_code: couponCode || null,
+    discount_amount: finalDiscountAmount > 0 ? finalDiscountAmount : null
   };
 
   // 10. Create the order AND items AND deduct stock atomically via RPC
@@ -150,6 +196,15 @@ export async function submitCheckout(formData: FormData) {
           };
         }
       } catch(e) {}
+    }
+    
+    if (rpcError?.message && rpcError.message.includes('INVALID_COUPON')) {
+      try {
+        const errorData = JSON.parse(rpcError.message);
+        return { error: errorData.message || 'Invalid or inactive coupon code.' };
+      } catch(e) {
+        return { error: 'Invalid or inactive coupon code.' };
+      }
     }
     
     return { error: 'Failed to create order', details: rpcError };

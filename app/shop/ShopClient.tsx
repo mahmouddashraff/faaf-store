@@ -5,19 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { Product } from '../../lib/products';
 import ProductCard from '../../components/ProductCard';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
+import { CategoryConfig } from '@/lib/config';
 
-const categories = [
-  { id: 'ALL', label: 'All Products' },
-  { id: 'Powder', label: 'Performance Powders' },
-  { id: 'Supplements', label: 'Supplements & Creatine' },
-  { id: 'Bars', label: 'Crunch Bars' },
-  { id: 'Snacks', label: 'Snack Bites' },
-  { id: 'Shakes', label: 'RTD Shakes' },
-  { id: 'Drinks', label: 'Hydration Drinks' },
-  { id: 'Bundles', label: 'Stacks & Bundles' },
-];
-
-function ShopContent({ products }: { products: Product[] }) {
+function ShopContent({ products, categories }: { products: Product[], categories: CategoryConfig[] }) {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'ALL';
   const initialSearch = searchParams.get('search') || '';
@@ -63,12 +53,17 @@ function ShopContent({ products }: { products: Product[] }) {
         break;
       case 'featured':
       default:
-        result.sort((a, b) => a.id - b.id);
+        // Use the is_featured flag if available
+        result.sort((a: any, b: any) => {
+          if (a.is_featured && !b.is_featured) return -1;
+          if (!a.is_featured && b.is_featured) return 1;
+          return a.id - b.id;
+        });
         break;
     }
 
     return result;
-  }, [selectedCategory, searchTerm, sortBy]);
+  }, [products, selectedCategory, searchTerm, sortBy]);
 
   const hasActiveFilters = selectedCategory !== 'ALL' || searchTerm.trim() !== '';
 
@@ -135,15 +130,23 @@ function ShopContent({ products }: { products: Product[] }) {
 
       {/* Category Pills Bar */}
       <div className="shop-category-pills" role="tablist" aria-label="Category filters">
+        <button
+          role="tab"
+          aria-selected={selectedCategory === 'ALL'}
+          className={`category-filter-chip ${selectedCategory === 'ALL' ? 'active' : ''}`}
+          onClick={() => setSelectedCategory('ALL')}
+        >
+          All Products
+        </button>
         {categories.map(cat => (
           <button
-            key={cat.id}
+            key={cat.slug}
             role="tab"
-            aria-selected={selectedCategory === cat.id}
-            className={`category-filter-chip ${selectedCategory === cat.id ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat.id)}
+            aria-selected={selectedCategory === cat.slug}
+            className={`category-filter-chip ${selectedCategory === cat.slug ? 'active' : ''}`}
+            onClick={() => setSelectedCategory(cat.slug)}
           >
-            {cat.label}
+            {cat.name}
           </button>
         ))}
       </div>
@@ -153,7 +156,7 @@ function ShopContent({ products }: { products: Product[] }) {
         <div className="active-filters-bar">
           <div>
             Showing <strong>{filteredProducts.length}</strong> {filteredProducts.length === 1 ? 'product' : 'products'}
-            {selectedCategory !== 'ALL' && ` in ${categories.find(c => c.id === selectedCategory)?.label}`}
+            {selectedCategory !== 'ALL' && ` in ${categories.find(c => c.slug === selectedCategory)?.name || selectedCategory}`}
             {searchTerm && ` matching "${searchTerm}"`}
           </div>
           <button className="clear-filters-btn" onClick={handleResetFilters}>
@@ -182,23 +185,7 @@ function ShopContent({ products }: { products: Product[] }) {
       {/* Integrated In-Category Inquiry Section */}
       <div style={{ maxWidth: '1200px', margin: '60px auto 0' }}>
         <CategoryInquiryBanner
-          category={
-            selectedCategory === 'Supplements'
-              ? 'Supplements'
-              : selectedCategory === 'Bars'
-              ? 'Bars & Snacks'
-              : selectedCategory === 'Bundles'
-              ? 'Bundles'
-              : selectedCategory === 'Powder'
-              ? 'Protein Powder'
-              : selectedCategory === 'Shakes'
-              ? 'RTD Shakes'
-              : selectedCategory === 'Drinks'
-              ? 'Hydration Drinks'
-              : selectedCategory === 'Snacks'
-              ? 'Snacks'
-              : 'Supplements & Products'
-          }
+          category={selectedCategory}
           title={
             selectedCategory === 'Supplements'
               ? 'NEED HELP CHOOSING SUPPLEMENTS OR CREATINE?'
@@ -235,10 +222,10 @@ function ShopContent({ products }: { products: Product[] }) {
   );
 }
 
-export default function ShopClient({ products }: { products: Product[] }) {
+export default function ShopClient({ products, categories }: { products: Product[], categories: CategoryConfig[] }) {
   return (
     <Suspense fallback={<div style={{ padding: '80px 24px', textAlign: 'center' }}>Loading Shop...</div>}>
-      <ShopContent products={products} />
+      <ShopContent products={products} categories={categories} />
     </Suspense>
   );
 }

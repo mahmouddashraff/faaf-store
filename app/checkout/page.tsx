@@ -18,7 +18,7 @@ function CheckoutSubmitBtn({ total }: { total: number }) {
 }
 
 export default function CheckoutPage() {
-  const { items, subtotal, freeShippingRemaining, clearCart, setExactQuantity } = useCart();
+  const { items, subtotal, freeShippingRemaining, clearCart, setExactQuantity, appliedCoupon, discountAmount, grandTotal } = useCart();
   const [mounted, setMounted] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,6 @@ export default function CheckoutPage() {
   }
 
   const shippingCost = freeShippingRemaining === 0 ? 0 : 9.99;
-  const grandTotal = subtotal + shippingCost;
 
   async function handleCheckout(formData: FormData) {
     setError(null);
@@ -80,6 +79,8 @@ export default function CheckoutPage() {
             <input type="hidden" name="deliveryFee" value={shippingCost} />
             <input type="hidden" name="total" value={grandTotal} />
             <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
+            <input type="hidden" name="couponCode" value={appliedCoupon?.code || ''} />
+            <input type="hidden" name="discountAmount" value={discountAmount || 0} />
 
             {error && (
               <div className="auth-error" style={{ marginBottom: '20px' }}>
@@ -116,6 +117,7 @@ export default function CheckoutPage() {
               <div className="form-input-group">
                 <label htmlFor="country">Country *</label>
                 <select id="country" name="country" className="contact-input-field" required defaultValue="United Arab Emirates">
+                  <option value="Egypt">Egypt</option>
                   <option value="United Arab Emirates">United Arab Emirates</option>
                   <option value="Saudi Arabia">Saudi Arabia</option>
                   <option value="Qatar">Qatar</option>
@@ -174,7 +176,9 @@ export default function CheckoutPage() {
                   </div>
                   <div className="summary-item-info">
                     <h4>{item.product.name}</h4>
-                    <span className="summary-item-variant">{item.variant.name}</span>
+                    <span className="summary-item-variant">
+                      {item.variant.name} {item.flavor && `| Flavor: ${item.flavor}`}
+                    </span>
                     <span className="summary-item-qty">Qty: {item.quantity}</span>
                   </div>
                   <div className="summary-item-price">
@@ -189,6 +193,12 @@ export default function CheckoutPage() {
                 <span>Subtotal</span>
                 <strong>{formatPrice(subtotal)}</strong>
               </div>
+              {appliedCoupon && (
+                <div className="summary-line" style={{ color: 'var(--gold-500)' }}>
+                  <span>Coupon ({appliedCoupon.code})</span>
+                  <strong>-{formatPrice(discountAmount)}</strong>
+                </div>
+              )}
               <div className="summary-line">
                 <span>Delivery Fee</span>
                 <span>{shippingCost === 0 ? <strong style={{color: 'var(--gold-400)'}}>FREE</strong> : formatPrice(shippingCost)}</span>
