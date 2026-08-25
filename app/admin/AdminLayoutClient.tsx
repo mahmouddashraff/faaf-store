@@ -1,20 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  useEffect(() => {
+    // Notify the global Header about the state change so it can animate its hamburger
+    document.dispatchEvent(new CustomEvent('adminMenuStateChange', { detail: isMobileMenuOpen }));
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    const handleToggle = () => setIsMobileMenuOpen(prev => !prev);
+    document.addEventListener('toggleAdminMenu', handleToggle);
+    return () => document.removeEventListener('toggleAdminMenu', handleToggle);
+  }, []);
 
   return (
     <div className="admin-layout">
-      {/* Mobile Menu Button */}
-      <button 
-        className="admin-mobile-menu-btn"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      >
-        {isMobileMenuOpen ? '✕ Close Menu' : '☰ Admin Menu'}
-      </button>
 
       {/* Sidebar Overlay (Mobile) */}
       {isMobileMenuOpen && (

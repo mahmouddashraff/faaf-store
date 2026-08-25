@@ -10,10 +10,14 @@ import { StoreSettings } from '@/lib/config';
 
 export default function Header({ settings }: { settings?: StoreSettings | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { totalCount, openCart, openSearch } = useCart();
   const pathname = usePathname();
   const { user, loading } = useAuth();
+  
+  const isAdmin = pathname?.startsWith('/admin');
+  const isAnyMenuOpen = isAdmin ? adminMenuOpen : menuOpen;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,12 +27,27 @@ export default function Header({ settings }: { settings?: StoreSettings | null }
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Listen for admin menu state changes
+  useEffect(() => {
+    const handleAdminState = (e: any) => setAdminMenuOpen(e.detail);
+    document.addEventListener('adminMenuStateChange', handleAdminState);
+    return () => document.removeEventListener('adminMenuStateChange', handleAdminState);
+  }, []);
+
   // Close mobile menu on route change
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
   const threshold = settings?.freeShippingThreshold || 99;
+
+  const handleMenuClick = () => {
+    if (isAdmin) {
+      document.dispatchEvent(new Event('toggleAdminMenu'));
+    } else {
+      setMenuOpen(!menuOpen);
+    }
+  };
 
   return (
     <>
@@ -45,19 +64,20 @@ export default function Header({ settings }: { settings?: StoreSettings | null }
       {/* Main Sticky Header */}
       <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
         <div className="header-inner">
-          {/* Mobile Hamburger Button */}
-          <button
-            className={`mobile-toggle-btn ${menuOpen ? 'active' : ''}`}
-            aria-label={menuOpen ? 'Close Menu' : 'Open Menu'}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            {/* Mobile Hamburger Button */}
+            <button
+              className={`mobile-toggle-btn ${isAnyMenuOpen ? 'active' : ''}`}
+              aria-label={isAnyMenuOpen ? 'Close Menu' : 'Open Menu'}
+              onClick={handleMenuClick}
+            >
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+            </button>
 
-          {/* FAAF Brand Logo */}
-          <Link href="/" className="brand-logo" aria-label="FAAF Fitness Magic Home">
+            {/* FAAF Brand Logo */}
+            <Link href="/" className="brand-logo" aria-label="FAAF Fitness Magic Home">
             <div className="brand-symbol">
               <Image
                 src="/logo.png"
@@ -73,6 +93,7 @@ export default function Header({ settings }: { settings?: StoreSettings | null }
               <span className="brand-sub">{settings?.storeName?.split(' ').slice(1).join(' ') || 'FITNESS MAGIC'}</span>
             </div>
           </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="desktop-navigation">

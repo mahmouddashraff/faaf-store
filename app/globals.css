@@ -515,10 +515,11 @@ img {
   display: none;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 5px;
-  width: 38px;
-  height: 38px;
-  padding: 6px;
+  width: 42px;
+  height: 42px;
+  padding: 8px;
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
