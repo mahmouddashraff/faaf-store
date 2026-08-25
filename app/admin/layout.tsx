@@ -2,6 +2,7 @@ import React from 'react';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import AdminLayoutClient from './AdminLayoutClient';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -22,19 +23,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div className="admin-brand">
-          FAAF Admin
-        </div>
-        <nav className="admin-nav">
-          <Link href="/admin">Control Center</Link>
-          <Link href="/account">Exit Admin</Link>
-        </nav>
-      </aside>
-      <main className="admin-main">
-        {children}
-      </main>
-    </div>
+    <AdminLayoutClient>
+      {children}
+    </AdminLayoutClient>
   );
 }

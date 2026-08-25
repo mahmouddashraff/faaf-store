@@ -151,30 +151,10 @@ export default function ProductsTab({ products }: { products: any[] }) {
               </div>
             </div>
 
-            <div className="admin-form-group" style={{ display: 'flex', gap: '20px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '8px' }}>Tag (e.g. BESTSELLER, NEW)</label>
-                <input type="text" name="tag" defaultValue={editingProduct.tag} className="contact-input-field" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '8px' }}>Accent Color</label>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input type="color" name="accent" defaultValue={editingProduct.accent || '#dfb76c'} style={{ height: '44px', width: '60px', padding: '0', cursor: 'pointer', border: 'none', background: 'transparent' }} required />
-                  <select name="accent_preset" className="contact-input-field" style={{ flex: 1 }} onChange={(e) => {
-                    const colorInput = e.target.previousElementSibling as HTMLInputElement;
-                    if (e.target.value) { colorInput.value = e.target.value; }
-                  }}>
-                    <option value="">Custom...</option>
-                    <option value="#dfb76c">Gold (FAAF)</option>
-                    <option value="#ff4d4d">Red</option>
-                    <option value="#4da6ff">Blue</option>
-                    <option value="#4dff4d">Green</option>
-                    <option value="#9933ff">Purple</option>
-                    <option value="#ffffff">White</option>
-                    <option value="#000000">Black</option>
-                  </select>
-                </div>
-              </div>
+            <div className="admin-form-group">
+              <label style={{ display: 'block', marginBottom: '8px' }}>Tag (e.g. BESTSELLER, NEW)</label>
+              <input type="text" name="tag" defaultValue={editingProduct.tag} className="contact-input-field" />
+              <input type="hidden" name="accent" value={editingProduct.accent || '#dfb76c'} />
             </div>
 
             <div className="admin-form-group">
@@ -220,8 +200,7 @@ export default function ProductsTab({ products }: { products: any[] }) {
                 <span>Feature Product on Homepage</span>
               </label>
               
-              <label style={{ display: 'block', marginBottom: '8px' }}>Special Badge (Optional)</label>
-              <input type="text" name="badge" defaultValue={editingProduct.badge} className="contact-input-field" />
+              <input type="hidden" name="badge" value={editingProduct.badge || ''} />
             </div>
 
             <div style={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
