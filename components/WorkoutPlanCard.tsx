@@ -3,17 +3,26 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { WorkoutPlan } from '../lib/workoutPlans';
+import { useCart } from '../context/CartContext';
 
 export default function WorkoutPlanCard({ plan }: { plan: WorkoutPlan }) {
   const [showModal, setShowModal] = useState(false);
-  const [enrolled, setEnrolled] = useState(false);
+  const { addItem, openCart } = useCart();
 
   const handleEnroll = () => {
-    setEnrolled(true);
-    setTimeout(() => {
-      setEnrolled(false);
-      setShowModal(false);
-    }, 2000);
+    const product: any = {
+      isCMSItem: true,
+      cmsType: 'workout_plan',
+      id: plan.id,
+      name: plan.title,
+      slug: plan.slug,
+      price: plan.price || 0,
+      category: plan.category,
+      variants: [{ id: 'digital-access', name: 'Digital Access', price: plan.price || 0, inStock: true, stockQuantity: 999999 }]
+    };
+    addItem(product, product.variants[0]);
+    setShowModal(false);
+    openCart();
   };
 
   return (
@@ -141,15 +150,15 @@ export default function WorkoutPlanCard({ plan }: { plan: WorkoutPlan }) {
                 </div>
               </div>
 
-              {enrolled ? (
-                <div className="enroll-success-msg">
-                  🎉 You are ready! Plan instructions &amp; PDF download unlocked.
-                </div>
-              ) : (
-                <button className="primary-btn full-width" onClick={handleEnroll}>
-                  GET FREE INSTANT ACCESS
-                </button>
-              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', marginTop: '20px' }}>
+                <h4>GET INSTANT DIGITAL ACCESS</h4>
+                <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--gold-400)' }}>
+                  {(plan.price || 0) > 0 ? `$${(plan.price || 0).toFixed(2)}` : 'FREE'}
+                </span>
+              </div>
+              <button className="primary-btn full-width" onClick={handleEnroll}>
+                {(plan.price || 0) > 0 ? `ADD TO BAG ($${(plan.price || 0).toFixed(2)})` : 'ADD TO BAG (FREE)'}
+              </button>
             </div>
           </div>
         </div>

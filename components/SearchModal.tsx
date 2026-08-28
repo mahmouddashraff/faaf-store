@@ -38,9 +38,9 @@ export default function SearchModal() {
     ? products.filter(
         p =>
           p.name.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query) ||
-          p.shortDescription.toLowerCase().includes(query) ||
-          p.nutritionHighlights.some(n => n.toLowerCase().includes(query))
+          (p.category?.toLowerCase().includes(query) ?? false) ||
+          (p.shortDescription?.toLowerCase().includes(query) ?? false) ||
+          (p.nutritionHighlights?.some(n => n.toLowerCase().includes(query)) ?? false)
       )
     : products.slice(0, 4);
 

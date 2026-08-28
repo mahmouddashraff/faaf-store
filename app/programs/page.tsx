@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { programs, FitnessProgram } from '../../lib/programs';
+import { createClient } from '@/utils/supabase/client';
+import type { FitnessProgram } from '../../lib/programs';
 import ProgramCard from '../../components/ProgramCard';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
@@ -16,11 +17,52 @@ const programCategories = [
 
 export default function ProgramsPage() {
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadPrograms() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('programs')
+        .select('*')
+        .eq('is_archived', false)
+        .order('sort_order', { ascending: true });
+      
+      if (data) {
+        setPrograms(data.map(p => ({
+          id: p.id,
+          slug: p.slug,
+          title: p.title,
+          tagline: p.tagline,
+          duration: p.duration,
+          difficulty: p.difficulty,
+          goal: p.goal,
+          category: p.category,
+          shortDescription: p.short_description,
+          overview: p.overview,
+          targetAudience: p.target_audience,
+          weeklySchedule: p.weekly_schedule,
+          equipmentNeeded: p.equipment_needed,
+          keyBenefits: p.key_benefits,
+          includedModules: p.included_modules,
+          accentColor: p.accent_color,
+          rating: p.rating,
+          reviews: p.reviews,
+          enrolledCount: p.enrolled_count,
+          price: p.price,
+          imageUrl: p.image_url
+        })));
+      }
+      setIsLoading(false);
+    }
+    loadPrograms();
+  }, []);
 
   const filteredPrograms = useMemo(() => {
     if (activeCategory === 'ALL') return programs;
     return programs.filter(p => p.category === activeCategory);
-  }, [activeCategory]);
+  }, [activeCategory, programs]);
 
   return (
     <main className="programs-view-page">
@@ -93,9 +135,19 @@ export default function ProgramsPage() {
 
           {/* Programs Grid */}
           <div className="programs-grid-layout">
-            {filteredPrograms.map((program: FitnessProgram) => (
-              <ProgramCard key={program.id} program={program} />
-            ))}
+            {isLoading ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                Loading programs...
+              </div>
+            ) : filteredPrograms.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                No programs found for this filter.
+              </div>
+            ) : (
+              filteredPrograms.map((program: FitnessProgram) => (
+                <ProgramCard key={program.id} program={program} />
+              ))
+            )}
           </div>
         </div>
       </section>

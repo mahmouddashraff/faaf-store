@@ -7,22 +7,24 @@ export type ProductVariant = {
 };
 
 export type Product = {
-  id: number;
+  id: number | string;
   name: string;
-  slug: string;
+  slug?: string;
   price: number;
   originalPrice?: number;
-  rating: number;
-  reviews: number;
-  accent: string;
-  category: 'Powder' | 'Bars' | 'Snacks' | 'Shakes' | 'Supplements' | 'Bundles' | 'Drinks';
-  tag?: 'BESTSELLER' | 'NEW' | 'POPULAR' | 'HOT' | 'SAVE 20%';
-  shortDescription: string;
-  description: string;
-  nutritionHighlights: string[];
+  rating?: number;
+  reviews?: number;
+  accent?: string;
+  category?: string;
+  tag?: 'BESTSELLER' | 'NEW' | 'POPULAR' | 'HOT' | 'SAVE 20%' | string;
+  shortDescription?: string;
+  description?: string;
+  nutritionHighlights?: string[];
   variants: ProductVariant[];
   image?: string;
   flavors?: string[];
+  isCMSItem?: boolean;
+  cmsType?: 'workout_plan' | 'program' | 'meal_plan' | 'manual_therapy' | 'lifestyle_pillar' | 'lifestyle_tip';
 };
 
 export const products: Product[] = [

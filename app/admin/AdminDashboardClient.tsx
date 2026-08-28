@@ -6,6 +6,12 @@ import OrdersTab from './components/OrdersTab';
 import PromotionsTab from './components/PromotionsTab';
 import ReviewsTab from './components/ReviewsTab';
 import CustomersTab from './components/CustomersTab';
+import WorkoutPlansTab from './components/WorkoutPlansTab';
+import ProgramsTab from './components/ProgramsTab';
+import ManualTherapyTab from './components/ManualTherapyTab';
+import MealPlansTab from './components/MealPlansTab';
+import LifestyleTab from './components/LifestyleTab';
+import CategoriesTab from './components/CategoriesTab';
 
 function AccordionSection({ title, id, defaultExpanded = false, children }: { title: string, id: string, defaultExpanded?: boolean, children: React.ReactNode }) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
@@ -62,6 +68,12 @@ export default function AdminDashboardClient({ initialData }: { initialData: any
     { id: 'orders', label: 'Orders' },
     { id: 'customers', label: 'Customers' },
     { id: 'products', label: 'Products & Inventory' },
+    { id: 'workout-plans', label: 'Workout Plans' },
+    { id: 'programs', label: 'Programs' },
+    { id: 'meal-plans', label: 'Meal Plans' },
+    { id: 'manual-therapy', label: 'Manual Therapy' },
+    { id: 'lifestyle', label: 'Lifestyle' },
+    { id: 'categories', label: 'Categories' },
     { id: 'promotions', label: 'Promotions' },
     { id: 'reviews', label: 'Reviews' },
   ];
@@ -128,6 +140,30 @@ export default function AdminDashboardClient({ initialData }: { initialData: any
 
         <AccordionSection title="Products & Inventory" id="products">
           <ProductsTab products={initialData.products} />
+        </AccordionSection>
+
+        <AccordionSection title="Workout Plans" id="workout-plans">
+          <WorkoutPlansTab />
+        </AccordionSection>
+
+        <AccordionSection title="Programs" id="programs">
+          <ProgramsTab />
+        </AccordionSection>
+
+        <AccordionSection title="Meal Plans" id="meal-plans">
+          <MealPlansTab />
+        </AccordionSection>
+
+        <AccordionSection title="Manual Therapy" id="manual-therapy">
+          <ManualTherapyTab />
+        </AccordionSection>
+
+        <AccordionSection title="Lifestyle Content" id="lifestyle">
+          <LifestyleTab />
+        </AccordionSection>
+
+        <AccordionSection title="Categories Configuration" id="categories">
+          <CategoriesTab categories={initialData.appConfig?.categories || []} />
         </AccordionSection>
 
         <AccordionSection title="Promotions & Coupons" id="promotions">

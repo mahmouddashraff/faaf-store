@@ -84,7 +84,7 @@ export default function ProductCard({ product }: { product: Product }) {
           ) : (
             <div className="art-cylinder">
               <span className="art-brand-text">FAAF</span>
-              <span className="art-cat-text">{product.category.toUpperCase()}</span>
+              <span className="art-cat-text">{product.category?.toUpperCase() || ''}</span>
               <div className="art-accent-line"></div>
             </div>
           )}
@@ -92,7 +92,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {/* Nutrition Fast-Facts Overlay */}
         <div className="product-nutrition-pills">
-          {product.nutritionHighlights.slice(0, 2).map((fact, idx) => (
+          {product.nutritionHighlights?.slice(0, 2).map((fact, idx) => (
             <span key={idx} className="nutrition-pill">
               {fact}
             </span>

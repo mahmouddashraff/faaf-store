@@ -31,9 +31,9 @@ function ShopContent({ products, categories }: { products: Product[], categories
       result = result.filter(
         p =>
           p.name.toLowerCase().includes(q) ||
-          p.shortDescription.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.nutritionHighlights.some(n => n.toLowerCase().includes(q))
+          (p.shortDescription?.toLowerCase().includes(q) ?? false) ||
+          (p.category?.toLowerCase().includes(q) ?? false) ||
+          (p.nutritionHighlights?.some(n => n.toLowerCase().includes(q)) ?? false)
       );
     }
 
@@ -46,10 +46,10 @@ function ShopContent({ products, categories }: { products: Product[], categories
         result.sort((a, b) => b.price - a.price);
         break;
       case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
+        result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
       case 'reviews':
-        result.sort((a, b) => b.reviews - a.reviews);
+        result.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
         break;
       case 'featured':
       default:

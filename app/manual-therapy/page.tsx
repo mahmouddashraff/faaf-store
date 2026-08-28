@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
 import { submitContactRequest } from '../../lib/contact';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
+import { useCart } from '../../context/CartContext';
 
 interface TherapyService {
   id: string;
@@ -14,97 +16,13 @@ interface TherapyService {
   shortDescription: string;
   focusAreas: string[];
   bestFor: string;
+  price: number;
 }
-
-const therapyServices: TherapyService[] = [
-  {
-    id: 'sports-massage',
-    name: 'Sports Massage',
-    tag: 'ATHLETIC RECOVERY',
-    icon: '🏃‍♂️',
-    duration: '60 / 90 Minutes',
-    shortDescription: 'Targeted hands-on therapy tailored for athletes and active lifters to reduce muscle tension, enhance local blood flow, and accelerate recovery between hard training sessions.',
-    focusAreas: [
-      'Pre- & post-training muscle priming',
-      'Targeted tension relief for heavy lifters',
-      'Enhanced tissue elasticity & circulation'
-    ],
-    bestFor: 'Athletes prepping for events or recovering from high-intensity training cycles.'
-  },
-  {
-    id: 'deep-tissue-therapy',
-    name: 'Deep Tissue Therapy',
-    tag: 'TENSION RELEASE',
-    icon: '🎯',
-    duration: '60 / 90 Minutes',
-    shortDescription: 'Focused, firm pressure applied to deeper muscle layers and connective tissues to release chronic tightness, stubborn adhesions, and posture-related physical strain.',
-    focusAreas: [
-      'Relief for dense, tight muscle fibers',
-      'Targeted trigger point pressure release',
-      'Posture-related muscular strain recovery'
-    ],
-    bestFor: 'Individuals with persistent muscle stiffness or localized postural tension.'
-  },
-  {
-    id: 'recovery-session',
-    name: 'Recovery Session',
-    tag: 'FULL-BODY FLUSH',
-    icon: '🔋',
-    duration: '45 / 60 Minutes',
-    shortDescription: 'A comprehensive restorative protocol blending gentle myofascial techniques, assisted stretching, and lymphatic flushing to promote whole-body physical restoration.',
-    focusAreas: [
-      'Full-body physical de-escalation',
-      'Gentle myofascial tissue relaxation',
-      'Circulatory flush & system reset'
-    ],
-    bestFor: 'Deload weeks, rest days, or busy athletes needing complete physical reset.'
-  },
-  {
-    id: 'mobility-flexibility',
-    name: 'Mobility & Flexibility',
-    tag: 'RANGE OF MOTION',
-    icon: '🧘‍♂️',
-    duration: '45 / 60 Minutes',
-    shortDescription: 'Hands-on joint mobilization and dynamic assisted stretching designed to expand functional range of motion, improve movement efficiency, and unlock athletic fluidity.',
-    focusAreas: [
-      'Assisted PNF stretching protocols',
-      'Hip, shoulder & thoracic spine mobility',
-      'Improved joint tracking & movement fluidity'
-    ],
-    bestFor: 'Lifters, runners, and athletes looking to improve depth, form, and overall movement quality.'
-  },
-  {
-    id: 'muscle-relaxation',
-    name: 'Muscle Relaxation',
-    tag: 'CALM & RESTORE',
-    icon: '🌿',
-    duration: '60 Minutes',
-    shortDescription: 'A smooth, rhythmic manual session focused on calming the nervous system, alleviating physical fatigue, and restoring deep muscular ease after demanding workweeks.',
-    focusAreas: [
-      'Down-regulation of physical tension',
-      'Rhythmic soothing manual strokes',
-      'Promotes restful sleep & calm state'
-    ],
-    bestFor: 'Anyone experiencing physical burnout, stress, or overall body fatigue.'
-  },
-  {
-    id: 'personalized-manual-therapy',
-    name: 'Personalized Manual Therapy',
-    tag: 'SIGNATURE PROTOCOL',
-    icon: '👑',
-    duration: '60 / 90 Minutes',
-    shortDescription: 'A bespoke, multi-technique session custom-built for your sport, body, and training volume. Combines deep tissue release, targeted mobility, and recovery flush.',
-    focusAreas: [
-      'Comprehensive movement & tension assessment',
-      'Multi-modality customized session plan',
-      'Dedicated focus on your priority muscle groups'
-    ],
-    bestFor: 'Dedicated fitness enthusiasts seeking an all-in-one personalized recovery session.'
-  }
-];
 
 export default function ManualTherapyPage() {
   const [selectedService, setSelectedService] = useState<TherapyService | null>(null);
+  const [therapyServices, setTherapyServices] = useState<TherapyService[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -119,6 +37,34 @@ export default function ManualTherapyPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { addItem, openCart } = useCart();
+
+  useEffect(() => {
+    async function loadTherapy() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('manual_therapy')
+        .select('*')
+        .eq('is_archived', false)
+        .order('sort_order', { ascending: true });
+      
+      if (data) {
+        setTherapyServices(data.map(t => ({
+          id: t.id,
+          name: t.name,
+          tag: t.tag,
+          icon: t.icon,
+          duration: t.duration,
+          shortDescription: t.short_description,
+          focusAreas: t.focus_areas,
+          bestFor: t.best_for,
+          price: t.price
+        })));
+      }
+      setIsLoading(false);
+    }
+    loadTherapy();
+  }, []);
 
   const openBookingModal = (serviceName?: string) => {
     if (serviceName) {
@@ -131,40 +77,33 @@ export default function ManualTherapyPage() {
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.email.trim()) {
-      setErrorMessage('Please fill in your name, phone number, and email.');
+    
+    const service = therapyServices.find(s => s.name === formData.service);
+    if (!service) {
+      setErrorMessage('Service not found.');
       return;
     }
 
-    setIsSubmitting(true);
-    setErrorMessage(null);
-
-    const formattedMessage = [
-      `Service: ${formData.service}`,
-      `Duration: ${formData.duration}`,
-      `Email: ${formData.email}`,
-      `Preferred Date: ${formData.preferredDate || 'Flexible'}`,
-      `Preferred Time: ${formData.preferredTime}`,
-      formData.notes ? `Notes: ${formData.notes}` : null
+    const variantName = [
+      formData.duration,
+      formData.preferredDate ? `Date: ${formData.preferredDate}` : '',
+      `Time: ${formData.preferredTime}`
     ].filter(Boolean).join(' | ');
 
-    const result = await submitContactRequest({
-      name: formData.name,
-      phone: formData.phone,
-      email: formData.email,
-      message: formattedMessage,
-      category: `Manual Therapy - ${formData.service}`,
-      page: '/manual-therapy',
-      created_at: new Date().toISOString(),
-    });
+    const product: any = {
+      isCMSItem: true,
+      cmsType: 'manual_therapy',
+      id: service.id,
+      name: service.name,
+      slug: service.id,
+      price: service.price || 0,
+      category: 'Therapy',
+      variants: [{ id: 'therapy-session', name: variantName, price: service.price || 0, inStock: true, stockQuantity: 999999 }]
+    };
 
-    setIsSubmitting(false);
-
-    if (result.success) {
-      setIsSubmitted(true);
-    } else {
-      setErrorMessage(result.error || 'Failed to submit booking request. Please try again.');
-    }
+    addItem(product, product.variants[0]);
+    setIsModalOpen(false);
+    openCart();
   };
 
   return (
@@ -233,9 +172,18 @@ export default function ManualTherapyPage() {
           </div>
 
           <div className="therapy-cards-grid">
-            {therapyServices.map(service => (
-              <article key={service.id} className="therapy-service-card">
-                <div className="service-card-header">
+            {isLoading ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                Loading services...
+              </div>
+            ) : therapyServices.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                No services available at this time.
+              </div>
+            ) : (
+              therapyServices.map(service => (
+                <article key={service.id} className="therapy-service-card">
+                  <div className="service-card-header">
                   <span className="service-tag">{service.tag}</span>
                   <span className="service-duration-badge">⏱️ {service.duration}</span>
                 </div>
@@ -271,7 +219,8 @@ export default function ManualTherapyPage() {
                   </button>
                 </div>
               </article>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -519,50 +468,6 @@ export default function ManualTherapyPage() {
 
                   <div className="form-group-row">
                     <div className="form-field">
-                      <label htmlFor="tb-name">Full Name *</label>
-                      <input
-                        id="tb-name"
-                        type="text"
-                        required
-                        placeholder="Marcus Reynolds"
-                        value={formData.name}
-                        onChange={e => setFormData({ ...formData, name: e.target.value })}
-                        className="modal-email-input"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="form-field">
-                      <label htmlFor="tb-phone">Phone Number *</label>
-                      <input
-                        id="tb-phone"
-                        type="tel"
-                        required
-                        placeholder="+1 (555) 234-5678"
-                        value={formData.phone}
-                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                        className="modal-email-input"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-field">
-                    <label htmlFor="tb-email">Email Address *</label>
-                    <input
-                      id="tb-email"
-                      type="email"
-                      required
-                      placeholder="athlete@example.com"
-                      value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      className="modal-email-input"
-                      disabled={isSubmitting}
-                    />
-                  </div>
-
-                  <div className="form-group-row">
-                    <div className="form-field">
                       <label htmlFor="tb-date">Preferred Date</label>
                       <input
                         id="tb-date"
@@ -609,7 +514,7 @@ export default function ManualTherapyPage() {
                     style={{ marginTop: '10px' }}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'SUBMITTING RESERVATION...' : 'CONFIRM & SUBMIT BOOKING REQUEST →'}
+                    ADD SESSION TO BAG →
                   </button>
 
                   <small className="modal-disclaimer">

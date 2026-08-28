@@ -2,21 +2,35 @@
 
 import React, { useState } from 'react';
 import { MealPlan } from '../lib/mealPlans';
+import { useCart } from '../context/CartContext';
 
 export default function MealPlanCard({ plan }: { plan: MealPlan }) {
   const [showModal, setShowModal] = useState(false);
-  const [enrolled, setEnrolled] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
+  const { addItem, openCart } = useCart();
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleEnroll = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userEmail) return;
-    setEnrolled(true);
+    
+    const product: any = {
+      isCMSItem: true,
+      cmsType: 'meal_plan',
+      id: plan.id,
+      name: plan.title,
+      slug: plan.slug,
+      price: plan.price,
+      category: 'Bundles',
+      variants: [{ id: 'digital-access', name: 'Digital Access', price: plan.price, inStock: true, stockQuantity: 999999 }]
+    };
+
+    addItem(product, product.variants[0]);
+    setIsAdded(true);
+    openCart();
+    
     setTimeout(() => {
-      setEnrolled(false);
+      setIsAdded(false);
       setShowModal(false);
-      setUserEmail('');
-    }, 2500);
+    }, 1500);
   };
 
   return (
@@ -162,19 +176,19 @@ export default function MealPlanCard({ plan }: { plan: MealPlan }) {
               <div className="modal-section">
                 <h4>SAMPLE DAILY MEAL TIMELINE</h4>
                 <div className="meal-timeline-container">
-                  {plan.sampleMeals.map((meal, idx) => (
+                  {(Array.isArray(plan.sampleMeals) ? plan.sampleMeals : (typeof plan.sampleMeals === 'string' ? (() => { try { const parsed = JSON.parse(plan.sampleMeals); return Array.isArray(parsed) ? parsed : []; } catch { return []; } })() : [])).map((meal: any, idx: number) => (
                     <div key={idx} className="timeline-meal-card">
                       <div className="timeline-meal-header">
                         <div className="timeline-meal-title">
-                          <span className="timeline-badge">{meal.time}</span>
-                          <strong>{meal.name}</strong>
+                          <span className="timeline-badge">{meal?.time || ''}</span>
+                          <strong>{meal?.name || ''}</strong>
                         </div>
                         <div className="timeline-meal-calories">
-                          {meal.calories} kcal • {meal.macros.protein}g P / {meal.macros.carbs}g C / {meal.macros.fats}g F
+                          {meal?.calories || 0} kcal • {meal?.macros?.protein || 0}g P / {meal?.macros?.carbs || 0}g C / {meal?.macros?.fats || 0}g F
                         </div>
                       </div>
                       <ul className="timeline-food-list">
-                        {meal.items.map((food, fIdx) => (
+                        {(Array.isArray(meal?.items) ? meal.items : []).map((food: string, fIdx: number) => (
                           <li key={fIdx}>• {food}</li>
                         ))}
                       </ul>
@@ -202,31 +216,19 @@ export default function MealPlanCard({ plan }: { plan: MealPlan }) {
                   </span>
                 </div>
 
-                {enrolled ? (
+                {isAdded ? (
                   <div className="enroll-success-msg">
-                    🎉 Access granted! Your customized {plan.title} and printable shopping lists have been sent to your email.
+                    🎉 Added to your bag!
                   </div>
                 ) : (
-                  <form onSubmit={handleEnroll} className="enroll-form">
-                    <div className="form-input-block">
-                      <label htmlFor={`meal-email-${plan.id}`}>Enter your email to receive this meal plan:</label>
-                      <input
-                        id={`meal-email-${plan.id}`}
-                        type="email"
-                        required
-                        placeholder="athlete@example.com"
-                        value={userEmail}
-                        onChange={e => setUserEmail(e.target.value)}
-                        className="modal-email-input"
-                      />
-                    </div>
-                    <button type="submit" className="primary-btn full-width">
-                      GET {plan.title.toUpperCase()} (${plan.price.toFixed(2)}) →
+                  <div className="enroll-form">
+                    <button type="button" onClick={handleEnroll} className="primary-btn full-width">
+                      ADD TO BAG (${plan.price.toFixed(2)}) →
                     </button>
                     <small className="modal-disclaimer">
                       Instant PDF blueprint download + printable shopping checklist + recipe cards.
                     </small>
-                  </form>
+                  </div>
                 )}
               </div>
             </div>

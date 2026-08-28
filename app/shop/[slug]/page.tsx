@@ -37,9 +37,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <div className="product-meta">
             <span className="product-category-tag">{product.category}</span>
             <div className="product-rating-box">
-              <span className="stars">{'★'.repeat(Math.floor(product.rating))}</span>
-              <span className="rating-number">{product.rating}</span>
-              <span className="review-count">({product.reviews} reviews)</span>
+              <span className="stars">{'★'.repeat(Math.floor(product.rating || 0))}</span>
+              <span className="rating-number">{product.rating || 0}</span>
+              <span className="review-count">({product.reviews || 0} reviews)</span>
             </div>
           </div>
 

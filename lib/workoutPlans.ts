@@ -15,6 +15,8 @@ export interface WorkoutPlan {
   highlights: string[];
   recommendedSupplements: string[];
   badge?: string;
+  price?: number;
+  is_archived?: boolean;
 }
 
 export const workoutPlans: WorkoutPlan[] = [

@@ -54,61 +54,132 @@ export async function submitCheckout(formData: FormData) {
   }
 
   // 3. Re-fetch the products/variants from Supabase for server-side validation
-  const variantIds = items.map((item: any) => item.variant.id);
+  const standardItems = items.filter((item: any) => !item.product.isCMSItem);
+  const cmsItems = items.filter((item: any) => item.product.isCMSItem);
+
+  const variantIds = standardItems.map((item: any) => item.variant.id);
   const { data: dbVariants, error: fetchError } = await adminAuth
     .from('product_variants')
     .select('*, products(name, price, flavors)')
     .in('variant_id', variantIds);
 
-  if (fetchError || !dbVariants || dbVariants.length === 0) {
+  if (standardItems.length > 0 && (fetchError || !dbVariants || dbVariants.length === 0)) {
     console.error('Error fetching variants:', fetchError);
     return { error: 'Failed to validate products. Please try again.' };
   }
 
+  // 3b. Validate all CMS items natively
+  const mealPlanIds = cmsItems.filter((i: any) => i.product.cmsType === 'meal_plan').map((i: any) => i.product.id);
+  const programIds = cmsItems.filter((i: any) => i.product.cmsType === 'program').map((i: any) => i.product.id);
+  const workoutPlanIds = cmsItems.filter((i: any) => i.product.cmsType === 'workout_plan').map((i: any) => i.product.id);
+  const manualTherapyIds = cmsItems.filter((i: any) => i.product.cmsType === 'manual_therapy').map((i: any) => i.product.id);
+  const lifestylePillarIds = cmsItems.filter((i: any) => i.product.cmsType === 'lifestyle_pillar').map((i: any) => i.product.id);
+  const lifestyleTipIds = cmsItems.filter((i: any) => i.product.cmsType === 'lifestyle_tip').map((i: any) => i.product.id);
+
+  const [dbMealPlans, dbPrograms, dbWorkoutPlans, dbManualTherapies, dbLifestylePillars, dbLifestyleTips] = await Promise.all([
+    mealPlanIds.length > 0 ? adminAuth.from('meal_plans').select('id, title, price').in('id', mealPlanIds).then(r => r.data) : Promise.resolve([]),
+    programIds.length > 0 ? adminAuth.from('programs').select('id, title, price').in('id', programIds).then(r => r.data) : Promise.resolve([]),
+    workoutPlanIds.length > 0 ? adminAuth.from('workout_plans').select('id, title, price').in('id', workoutPlanIds).then(r => r.data) : Promise.resolve([]),
+    manualTherapyIds.length > 0 ? adminAuth.from('manual_therapy').select('id, name, price').in('id', manualTherapyIds).then(r => r.data) : Promise.resolve([]),
+    lifestylePillarIds.length > 0 ? adminAuth.from('lifestyle_pillars').select('id, title, price').in('id', lifestylePillarIds).then(r => r.data) : Promise.resolve([]),
+    lifestyleTipIds.length > 0 ? adminAuth.from('lifestyle_tips').select('id, title, price').in('id', lifestyleTipIds).then(r => r.data) : Promise.resolve([])
+  ]);
+
   let serverSubtotal = 0;
+  let physicalSubtotal = 0;
   const validatedOrderItems = [];
 
   for (const item of items) {
-    const dbVariant = dbVariants.find(v => v.variant_id === item.variant.id);
-    
-    // 4. Verify every product/variant exists
-    if (!dbVariant) {
-      return { error: `Product variant not found: ${item.variant.name}` };
-    }
+    if (item.product.isCMSItem) {
+      const type = item.product.cmsType;
+      let dbItem: any = null;
+      let title = '';
+      let price = 0;
 
-    // 5. Verify sufficient stock
-    if (dbVariant.stock_quantity < item.quantity) {
-      return { 
-        error: `Insufficient stock for ${dbVariant.name}. Only ${dbVariant.stock_quantity} remaining.`,
-        outOfStockCartItemId: item.cartItemId,
-        availableQuantity: dbVariant.stock_quantity
-      };
-    }
-
-    // 6. Use DATABASE prices, not prices supplied by the browser
-    const priceAtPurchase = dbVariant.price !== null ? dbVariant.price : dbVariant.products.price;
-    serverSubtotal += priceAtPurchase * item.quantity;
-
-    // Verify flavor if selected
-    if (item.flavor) {
-      const allowedFlavors = dbVariant.products.flavors ? dbVariant.products.flavors.split(',').map((f: string) => f.trim()).filter((f: string) => f) : [];
-      if (allowedFlavors.length > 0 && !allowedFlavors.includes(item.flavor)) {
-        return { error: `Invalid flavor selected for ${dbVariant.products.name}.` };
+      if (type === 'meal_plan') {
+        dbItem = dbMealPlans?.find((x: any) => x.id === item.product.id);
+        title = dbItem?.title;
+        price = dbItem?.price ?? 0;
+      } else if (type === 'program') {
+        dbItem = dbPrograms?.find((x: any) => x.id === item.product.id);
+        title = dbItem?.title;
+        price = dbItem?.price ?? 0;
+      } else if (type === 'workout_plan') {
+        dbItem = dbWorkoutPlans?.find((x: any) => x.id === item.product.id);
+        title = dbItem?.title;
+        price = dbItem?.price ?? 0;
+      } else if (type === 'manual_therapy') {
+        dbItem = dbManualTherapies?.find((x: any) => x.id === item.product.id);
+        title = dbItem?.name;
+        price = dbItem?.price ?? 0;
+      } else if (type === 'lifestyle_pillar') {
+        dbItem = dbLifestylePillars?.find((x: any) => x.id === item.product.id);
+        title = dbItem?.title;
+        price = dbItem?.price ?? 0;
+      } else if (type === 'lifestyle_tip') {
+        dbItem = dbLifestyleTips?.find((x: any) => x.id === item.product.id);
+        title = dbItem?.title;
+        price = dbItem?.price ?? 0;
       }
-    }
 
-    validatedOrderItems.push({
-      product_id: dbVariant.product_id,
-      variant_id: dbVariant.id, // Must use the UUID, not the text slug
-      product_name: dbVariant.products.name,
-      variant_name: dbVariant.name,
-      price_at_purchase: priceAtPurchase,
-      quantity: item.quantity,
-      flavor: item.flavor || null,
-      // For stock deduction later
-      current_stock: dbVariant.stock_quantity,
-      text_slug: dbVariant.variant_id
-    });
+      if (!dbItem) {
+        return { error: `CMS item not found: ${item.product.name}` };
+      }
+
+      serverSubtotal += price * item.quantity;
+      validatedOrderItems.push({
+        is_cms_item: true,
+        cms_type: type,
+        cms_id: dbItem.id,
+        product_name: title,
+        variant_name: item.variant?.name || 'Digital Access',
+        price_at_purchase: price,
+        quantity: item.quantity,
+        flavor: null
+      });
+    } else {
+      const dbVariant = dbVariants?.find(v => v.variant_id === item.variant.id);
+      
+      // 4. Verify every product/variant exists
+      if (!dbVariant) {
+        return { error: `Product variant not found: ${item.variant.name}` };
+      }
+
+      // 5. Verify sufficient stock
+      if (dbVariant.stock_quantity < item.quantity) {
+        return { 
+          error: `Insufficient stock for ${dbVariant.name}. Only ${dbVariant.stock_quantity} remaining.`,
+          outOfStockCartItemId: item.cartItemId,
+          availableQuantity: dbVariant.stock_quantity
+        };
+      }
+
+      // 6. Use DATABASE prices, not prices supplied by the browser
+      const priceAtPurchase = dbVariant.price !== null ? dbVariant.price : dbVariant.products.price;
+      serverSubtotal += priceAtPurchase * item.quantity;
+      physicalSubtotal += priceAtPurchase * item.quantity;
+
+      // Verify flavor if selected
+      if (item.flavor) {
+        const allowedFlavors = dbVariant.products.flavors ? dbVariant.products.flavors.split(',').map((f: string) => f.trim()).filter((f: string) => f) : [];
+        if (allowedFlavors.length > 0 && !allowedFlavors.includes(item.flavor)) {
+          return { error: `Invalid flavor selected for ${dbVariant.products.name}.` };
+        }
+      }
+
+      validatedOrderItems.push({
+        product_id: dbVariant.product_id,
+        variant_id: dbVariant.id, // Must use the UUID, not the text slug
+        product_name: dbVariant.products.name,
+        variant_name: dbVariant.name,
+        price_at_purchase: priceAtPurchase,
+        quantity: item.quantity,
+        flavor: item.flavor || null,
+        // For stock deduction later
+        current_stock: dbVariant.stock_quantity,
+        text_slug: dbVariant.variant_id
+      });
+    }
   }
 
   // 7. Calculate subtotal server-side
@@ -119,7 +190,10 @@ export async function submitCheckout(formData: FormData) {
   const threshold = settings?.freeShippingThreshold ?? 99;
   const standardFee = settings?.shippingFee ?? 9.99;
   
-  const deliveryFee = serverSubtotal >= threshold ? 0 : standardFee;
+  let deliveryFee = 0;
+  if (standardItems.length > 0) {
+    deliveryFee = physicalSubtotal >= threshold ? 0 : standardFee;
+  }
 
   // 9. Calculate total server-side
   let finalDiscountAmount = 0;

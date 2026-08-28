@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { workoutPlans, WorkoutPlan } from '../../lib/workoutPlans';
+import { createClient } from '@/utils/supabase/client';
+import type { WorkoutPlan } from '../../lib/workoutPlans';
 import WorkoutPlanCard from '../../components/WorkoutPlanCard';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
@@ -18,13 +19,54 @@ const filterCategories = [
 
 export default function WorkoutPlansPage() {
   const [activeFilter, setActiveFilter] = useState<string>('ALL');
+  const [workoutPlans, setWorkoutPlans] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadPlans() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('workout_plans')
+        .select('*')
+        .eq('is_archived', false)
+        .order('sort_order', { ascending: true });
+      
+      if (data) {
+        setWorkoutPlans(data.map(p => ({
+          id: p.id,
+          slug: p.slug,
+          title: p.title,
+          level: p.level,
+          duration: p.duration,
+          daysPerWeek: p.days_per_week,
+          goal: p.goal,
+          category: p.category,
+          equipment: p.equipment,
+          description: p.description,
+          highlights: p.highlights,
+          recommendedSupplements: p.recommended_supplements,
+          badge: p.badge,
+          imageUrl: p.image_url,
+          price: p.price
+        })));
+      }
+      setIsLoading(false);
+    }
+    loadPlans();
+  }, []);
 
   const filteredPlans = useMemo(() => {
     if (activeFilter === 'ALL') return workoutPlans;
-    return workoutPlans.filter(
-      p => p.level === activeFilter || p.category === activeFilter
-    );
-  }, [activeFilter]);
+    return workoutPlans.filter(p => {
+      if (activeFilter === 'Beginner') return p.level === 'Beginner';
+      if (activeFilter === 'Intermediate') return p.level === 'Intermediate';
+      if (activeFilter === 'Advanced') return p.level === 'Advanced';
+      if (activeFilter === 'Strength') return p.category === 'Strength';
+      if (activeFilter === 'Fat Loss') return p.category === 'Fat Loss';
+      if (activeFilter === 'Home') return p.category === 'Home';
+      return false;
+    });
+  }, [activeFilter, workoutPlans]);
 
   return (
     <main className="workout-plans-view">
@@ -88,9 +130,19 @@ export default function WorkoutPlansPage() {
 
           {/* Cards Grid */}
           <div className="workout-cards-grid">
-            {filteredPlans.map((plan: WorkoutPlan) => (
-              <WorkoutPlanCard key={plan.id} plan={plan} />
-            ))}
+            {isLoading ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                Loading workout plans...
+              </div>
+            ) : filteredPlans.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                No workout plans found for this filter.
+              </div>
+            ) : (
+              filteredPlans.map((plan: WorkoutPlan) => (
+                <WorkoutPlanCard key={plan.id} plan={plan} />
+              ))
+            )}
           </div>
         </div>
       </section>

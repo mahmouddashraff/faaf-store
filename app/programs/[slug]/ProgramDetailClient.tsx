@@ -4,27 +4,37 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { FitnessProgram } from '../../../lib/programs';
 import CategoryInquiryBanner from '../../../components/CategoryInquiry';
+import { useCart } from '../../../context/CartContext';
 
-export default function ProgramDetailClient({ program }: { program: FitnessProgram }) {
+export default function ProgramDetailClient({ program }: { program: any }) {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [enrollSuccess, setEnrollSuccess] = useState(false);
+  const { addItem, openCart } = useCart();
 
-  const handleStartProgram = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userEmail || !userEmail.includes('@')) return;
-    setEnrollSuccess(true);
-    setIsEnrolled(true);
-    setTimeout(() => {
-      setShowModal(false);
-    }, 2500);
+  const handleStartProgram = () => {
+    const parsedPrice = typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, ''));
+    const finalPrice = isNaN(parsedPrice) ? 0 : parsedPrice;
+
+    const product: any = {
+      isCMSItem: true,
+      cmsType: 'program',
+      id: program.id,
+      name: program.title,
+      slug: program.slug,
+      price: finalPrice,
+      category: program.category,
+      variants: [{ id: 'digital-access', name: 'Digital Access', price: finalPrice, inStock: true, stockQuantity: 999999 }]
+    };
+    
+    addItem(product, product.variants[0]);
+    setShowModal(false);
+    openCart();
   };
 
   return (
     <main className="program-detail-page">
       {/* 1. HERO SECTION */}
-      <section className={`detail-hero-section ${program.accentColor}`}>
+      <section className={`detail-hero-section ${program.accent_color || ''}`}>
         <div className="hero-glow-1"></div>
         <div className="detail-hero-container">
           {/* Breadcrumb */}
@@ -44,23 +54,16 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
 
               <h1 className="detail-title">{program.title}</h1>
               <p className="detail-tagline">{program.tagline}</p>
-              <p className="detail-short-desc">{program.shortDescription}</p>
+              <p className="detail-short-desc">{program.short_description}</p>
 
-              <div className="detail-cta-bar">
-                {isEnrolled ? (
-                  <div className="enrolled-status-box">
-                    <span className="enrolled-check">✓</span>
-                    <span>You are Enrolled in this Program! Daily schedule active.</span>
-                  </div>
-                ) : (
+                <div className="detail-cta-bar">
                   <button
                     className="primary-btn"
                     style={{ padding: '16px 36px', fontSize: '1.0625rem' }}
-                    onClick={() => setShowModal(true)}
+                    onClick={handleStartProgram}
                   >
-                    START THIS PROGRAM (FREE) →
+                    ADD TO BAG →
                   </button>
-                )}
                 <Link href="/shop" className="secondary-btn light">
                   SHOP RECOMMENDED STACK
                 </Link>
@@ -71,7 +74,7 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
             <div className="detail-summary-card">
               <div className="summary-card-header">
                 <h3>PROGRAM AT A GLANCE</h3>
-                <span className="card-free-tag">{program.price}</span>
+                <span className="card-free-tag">${typeof program.price === 'number' ? program.price.toFixed(2) : program.price}</span>
               </div>
 
               <div className="summary-specs-list">
@@ -89,16 +92,16 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
                 </div>
                 <div className="spec-row">
                   <span>👥 Enrolled Athletes</span>
-                  <strong>{program.enrolledCount.toLocaleString()} Active</strong>
+                  <strong>{(program.enrolled_count || 0).toLocaleString()} Active</strong>
                 </div>
               </div>
 
               <div className="summary-card-footer">
                 <button
                   className="primary-btn full-width"
-                  onClick={() => setShowModal(true)}
+                  onClick={handleStartProgram}
                 >
-                  {isEnrolled ? 'DOWNLOAD PROGRAM MATERIALS' : 'GET INSTANT ACCESS'}
+                  ADD TO BAG
                 </button>
                 <small className="instant-access-note">
                   🔒 100% Free digital access with FAAF Community
@@ -120,7 +123,7 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
 
               <h3 className="subheading-h3" style={{ marginTop: '36px' }}>KEY BENEFITS</h3>
               <div className="benefits-checklist-grid">
-                {program.keyBenefits.map((benefit, i) => (
+                {(program.key_benefits || []).map((benefit: string, i: number) => (
                   <div key={i} className="benefit-check-card">
                     <span className="benefit-check-icon">✓</span>
                     <p>{benefit}</p>
@@ -134,7 +137,7 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
               <div className="target-audience-card">
                 <h3>WHO THIS IS BUILT FOR</h3>
                 <ul className="audience-list">
-                  {program.targetAudience.map((item, i) => (
+                  {(program.target_audience || []).map((item: string, i: number) => (
                     <li key={i}>
                       <span className="target-bullet">🎯</span>
                       <span>{item}</span>
@@ -147,7 +150,7 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
               <div className="equipment-needed-card">
                 <h3>EQUIPMENT REQUIRED</h3>
                 <ul className="equipment-list">
-                  {program.equipmentNeeded.map((eq, i) => (
+                  {(program.equipment_needed || []).map((eq: string, i: number) => (
                     <li key={i}>
                       <span className="eq-icon">🏋️</span>
                       <span>{eq}</span>
@@ -172,7 +175,7 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
           </div>
 
           <div className="schedule-cards-grid">
-            {program.weeklySchedule.map((item, idx) => (
+            {(program.weekly_schedule || []).map((item: any, idx: number) => (
               <div key={idx} className="schedule-day-card">
                 <div className="day-header">
                   <span className="day-name">{item.day}</span>
@@ -200,7 +203,7 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
           </div>
 
           <div className="modules-grid">
-            {program.includedModules.map((mod, i) => (
+            {(program.included_modules || []).map((mod: string, i: number) => (
               <div key={i} className="module-card">
                 <div className="module-icon-circle">0{i + 1}</div>
                 <h4>{mod}</h4>
@@ -235,9 +238,9 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
           <div className="detail-cta-buttons">
             <button
               className="primary-btn"
-              onClick={() => setShowModal(true)}
+              onClick={handleStartProgram}
             >
-              {isEnrolled ? 'ACCESS YOUR PROGRAM DASHBOARD' : 'ENROLL FOR FREE NOW →'}
+              ADD TO BAG →
             </button>
             <Link href="/programs" className="secondary-btn light">
               EXPLORE OTHER PROGRAMS
@@ -246,61 +249,7 @@ export default function ProgramDetailClient({ program }: { program: FitnessProgr
         </div>
       </section>
 
-      {/* ENROLLMENT MODAL */}
-      {showModal && (
-        <div className="plan-modal-overlay" onClick={() => setShowModal(false)} role="dialog" aria-modal="true">
-          <div className="plan-modal-content" onClick={e => e.stopPropagation()}>
-            <div className="plan-modal-header">
-              <div>
-                <span className="detail-category-badge">{program.category}</span>
-                <h2>ENROLL IN {program.title}</h2>
-              </div>
-              <button className="close-btn" onClick={() => setShowModal(false)} aria-label="Close modal">
-                ✕
-              </button>
-            </div>
 
-            <div className="plan-modal-body">
-              {enrollSuccess ? (
-                <div className="enroll-success-msg">
-                  <div className="success-emoji">🎉</div>
-                  <h3>WELCOME TO {program.title}!</h3>
-                  <p>
-                    We sent the complete training roadmap, PDF guides, and workout logging template to <strong>{userEmail}</strong>.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleStartProgram} className="enroll-form">
-                  <p>
-                    Enter your email below for immediate free digital access to the {program.title} training schedules, nutrition calculator, and PDF downloads.
-                  </p>
-
-                  <div className="form-input-block">
-                    <label htmlFor="athlete-email">Athlete Email Address</label>
-                    <input
-                      id="athlete-email"
-                      type="email"
-                      required
-                      placeholder="e.g. champion@fitness.com"
-                      value={userEmail}
-                      onChange={e => setUserEmail(e.target.value)}
-                      className="modal-email-input"
-                    />
-                  </div>
-
-                  <button type="submit" className="primary-btn full-width" style={{ marginTop: '14px' }}>
-                    CONFIRM &amp; UNLOCK PROGRAM NOW
-                  </button>
-
-                  <small className="modal-disclaimer">
-                    ✓ 100% Free with FAAF Community • No credit card required • Unsubscribe anytime.
-                  </small>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

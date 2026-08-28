@@ -1,17 +1,75 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
+import { useCart } from '../../context/CartContext';
 
-export const metadata: Metadata = {
-  title: 'Life Style | FAAF Fitness Magic',
-  description:
-    'Discover the FAAF lifestyle: high-performance daily habits, clean nutrition, recovery protocols, and mindset guidance for lasting transformation.',
-};
+// Removed metadata export as this is now a client component
 
 export default function LifestylePage() {
+  const [pillars, setPillars] = useState<any[]>([]);
+  const [tips, setTips] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addItem, openCart } = useCart();
+
+  const handleAddPillar = (pillar: any) => {
+    const product: any = {
+      isCMSItem: true,
+      cmsType: 'lifestyle_pillar',
+      id: pillar.id,
+      name: pillar.title,
+      slug: pillar.id,
+      price: pillar.price || 0,
+      category: 'Lifestyle',
+      variants: [{ id: 'digital-access', name: 'Digital Access', price: pillar.price || 0, inStock: true, stockQuantity: 999999 }]
+    };
+    addItem(product, product.variants[0]);
+    openCart();
+  };
+
+  const handleAddTip = (tip: any) => {
+    const product: any = {
+      isCMSItem: true,
+      cmsType: 'lifestyle_tip',
+      id: tip.id,
+      name: tip.title,
+      slug: tip.id,
+      price: tip.price || 0,
+      category: 'Lifestyle',
+      variants: [{ id: 'digital-access', name: 'Digital Access', price: tip.price || 0, inStock: true, stockQuantity: 999999 }]
+    };
+    addItem(product, product.variants[0]);
+    openCart();
+  };
+
+  useEffect(() => {
+    async function loadLifestyle() {
+      const supabase = createClient();
+      
+      const [pillarsRes, tipsRes] = await Promise.all([
+        supabase.from('lifestyle_pillars').select('*').eq('is_archived', false).order('sort_order', { ascending: true }),
+        supabase.from('lifestyle_tips').select('*').eq('is_archived', false).order('sort_order', { ascending: true })
+      ]);
+      
+      if (pillarsRes.data) setPillars(pillarsRes.data);
+      if (tipsRes.data) setTips(tipsRes.data);
+      
+      setIsLoading(false);
+    }
+    loadLifestyle();
+  }, []);
+
   return (
     <main className="lifestyle-page-view">
+      {isLoading ? (
+        <div style={{ padding: '100px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+          Loading lifestyle content...
+        </div>
+      ) : (
+        <>
       {/* A. HERO SECTION */}
       <section className="lifestyle-hero-section">
         <div className="hero-glow-1"></div>
@@ -64,98 +122,30 @@ export default function LifestylePage() {
         </div>
 
         <div className="pillars-grid">
-          {/* 1. Nutrition */}
-          <div className="pillar-card">
-            <div className="pillar-icon-box nutrition">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
-                <line x1="6" y1="1" x2="6" y2="4"></line>
-                <line x1="10" y1="1" x2="10" y2="4"></line>
-                <line x1="14" y1="1" x2="14" y2="4"></line>
-              </svg>
+          {pillars.map((pillar) => (
+            <div key={pillar.id} className="pillar-card">
+              <div className={`pillar-icon-box ${pillar.css_class}`} dangerouslySetInnerHTML={{ __html: pillar.icon_svg }}>
+              </div>
+              <h3>{pillar.title}</h3>
+              <p>{pillar.description}</p>
+              <ul className="pillar-bullets">
+                {pillar.bullets.map((bullet: string, idx: number) => (
+                  <li key={idx}>{bullet}</li>
+                ))}
+              </ul>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <Link href={pillar.link_url} className="pillar-link">
+                  {pillar.link_text}
+                </Link>
+                <button 
+                  onClick={() => handleAddPillar(pillar)} 
+                  style={{ background: 'none', border: '1px solid var(--gold-500)', color: 'var(--gold-400)', padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', borderRadius: '4px' }}
+                >
+                  {(pillar.price || 0) > 0 ? `ADD TO BAG ($${(pillar.price || 0).toFixed(2)})` : 'ADD TO BAG (FREE)'}
+                </button>
+              </div>
             </div>
-            <h3>Pure Nutrition</h3>
-            <p>
-              Fuel your cells with whole unprocessed foods, balanced macronutrients, clean whey isolate, and zero artificial shortcuts.
-            </p>
-            <ul className="pillar-bullets">
-              <li>1.6g - 2.2g Protein per kg bodyweight</li>
-              <li>Focus on micronutrient-dense meals</li>
-              <li>Hydrate with natural electrolytes</li>
-            </ul>
-            <Link href="/shop?category=Powder" className="pillar-link">
-              Explore Nutrition →
-            </Link>
-          </div>
-
-          {/* 2. Training */}
-          <div className="pillar-card">
-            <div className="pillar-icon-box training">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M6 5v14"></path>
-                <path d="M18 5v14"></path>
-                <path d="M2 9h4v6H2z"></path>
-                <path d="M18 9h4v6h-4z"></path>
-                <path d="M6 12h12"></path>
-              </svg>
-            </div>
-            <h3>Purposeful Training</h3>
-            <p>
-              Move with intention. Progressive overload, functional movement patterns, and cardiovascular conditioning that prepares you for life.
-            </p>
-            <ul className="pillar-bullets">
-              <li>Master compound movements</li>
-              <li>Track progressive overload weekly</li>
-              <li>Incorporate Zone 2 aerobic base work</li>
-            </ul>
-            <Link href="/workout-plans" className="pillar-link">
-              View Workout Plans →
-            </Link>
-          </div>
-
-          {/* 3. Recovery */}
-          <div className="pillar-card">
-            <div className="pillar-icon-box recovery">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"></path>
-              </svg>
-            </div>
-            <h3>Active Recovery</h3>
-            <p>
-              Muscle and mental resilience are built during rest. Prioritize deep restorative sleep, mobility flows, and cellular repair.
-            </p>
-            <ul className="pillar-bullets">
-              <li>7-9 hours uninterrupted sleep</li>
-              <li>Daily 10-minute mobility routines</li>
-              <li>Post-workout BCAA &amp; magnesium support</li>
-            </ul>
-            <Link href="/shop?category=Supplements" className="pillar-link">
-              Recovery Fuels →
-            </Link>
-          </div>
-
-          {/* 4. Healthy Habits */}
-          <div className="pillar-card">
-            <div className="pillar-icon-box habits">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
-            <h3>Habit Stacking</h3>
-            <p>
-              Consistency beats motivation every single day. Micro-habits stacked over weeks create massive compounding transformations.
-            </p>
-            <ul className="pillar-bullets">
-              <li>Morning hydration and sunlight priming</li>
-              <li>Structured evening wind-down routine</li>
-              <li>Weekly progress and macro review</li>
-            </ul>
-            <Link href="/programs" className="pillar-link">
-              Guided Programs →
-            </Link>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -171,59 +161,20 @@ export default function LifestylePage() {
           </div>
 
           <div className="routine-cards-grid">
-            <div className="routine-tile">
-              <div className="routine-num">01</div>
-              <div className="routine-badge">HYDRATION</div>
-              <h4>Stay Hydrated</h4>
-              <p>
-                Drink 3-4 liters of water daily. Add a pinch of sea salt or FAAF Electrolytes during intense training sessions to maintain optimal cellular osmotic balance.
-              </p>
-            </div>
-
-            <div className="routine-tile">
-              <div className="routine-num">02</div>
-              <div className="routine-badge">PROTEIN</div>
-              <h4>Prioritize Protein</h4>
-              <p>
-                Anchor every meal around 25-35g of bioavailable protein. Spread your intake across 3-4 feedings to continuously stimulate muscle protein synthesis (MPS).
-              </p>
-            </div>
-
-            <div className="routine-tile">
-              <div className="routine-num">03</div>
-              <div className="routine-badge">MOVEMENT</div>
-              <h4>Move Every Day</h4>
-              <p>
-                Aim for 8,000 - 10,000 steps daily outside your workouts. Low-intensity walking increases blood circulation, aids recovery, and manages cortisol levels.
-              </p>
-            </div>
-
-            <div className="routine-tile">
-              <div className="routine-num">04</div>
-              <div className="routine-badge">SLEEP</div>
-              <h4>Sleep &amp; Recover</h4>
-              <p>
-                Keep your bedroom cold and dark. Limit blue light 60 minutes before bed to allow growth hormone and testosterone release during deep slow-wave sleep.
-              </p>
-            </div>
-
-            <div className="routine-tile">
-              <div className="routine-num">05</div>
-              <div className="routine-badge">MINDSET</div>
-              <h4>Stay Consistent</h4>
-              <p>
-                A 70% workout executed with consistency outperforms a 100% workout done occasionally. Show up on the days you don&apos;t feel like it.
-              </p>
-            </div>
-
-            <div className="routine-tile">
-              <div className="routine-num">06</div>
-              <div className="routine-badge">SUPPLEMENTS</div>
-              <h4>Fuel Your Goals</h4>
-              <p>
-                Use supplements as strategic amplifiers: Pure Whey Isolate post-workout, Creatine Monohydrate daily, and clean Pre-Workout when extra focus is needed.
-              </p>
-            </div>
+            {tips.map((tip) => (
+              <div key={tip.id} className="routine-tile">
+                <div className="routine-num">{tip.number_label}</div>
+                <div className="routine-badge">{tip.badge}</div>
+                <h4>{tip.title}</h4>
+                <p>{tip.description}</p>
+                <button 
+                  onClick={() => handleAddTip(tip)} 
+                  style={{ background: 'none', border: '1px solid var(--text-muted)', color: 'var(--text-light)', padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', borderRadius: '4px', marginTop: '12px' }}
+                >
+                  {(tip.price || 0) > 0 ? `ADD TO BAG ($${(tip.price || 0).toFixed(2)})` : 'ADD TO BAG (FREE)'}
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -294,6 +245,8 @@ export default function LifestylePage() {
           </div>
         </div>
       </section>
+        </>
+      )}
     </main>
   );
 }

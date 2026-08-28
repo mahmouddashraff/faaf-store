@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { mealPlans, MealPlan } from '../../lib/mealPlans';
+import { createClient } from '@/utils/supabase/client';
+import type { MealPlan } from '../../lib/mealPlans';
 import MealPlanCard from '../../components/MealPlanCard';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
@@ -17,11 +18,48 @@ const filterCategories = [
 
 export default function MealPlansPage() {
   const [activeFilter, setActiveFilter] = useState<string>('ALL');
+  const [mealPlans, setMealPlans] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMealPlans() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('meal_plans')
+        .select('*')
+        .eq('is_archived', false)
+        .order('sort_order', { ascending: true });
+      
+      if (data) {
+        setMealPlans(data.map(m => ({
+          id: m.id,
+          slug: m.slug,
+          title: m.title,
+          goal: m.goal,
+          category: m.category,
+          price: m.price,
+          dailyCalories: m.daily_calories,
+          macros: m.macros,
+          mealsPerDay: m.meals_per_day,
+          duration: m.duration,
+          shortDescription: m.short_description,
+          description: m.description,
+          highlights: m.highlights,
+          sampleMeals: m.sample_meals,
+          badge: m.badge,
+          dietaryTags: m.dietary_tags,
+          imageUrl: m.image_url
+        })));
+      }
+      setIsLoading(false);
+    }
+    loadMealPlans();
+  }, []);
 
   const filteredPlans = useMemo(() => {
     if (activeFilter === 'ALL') return mealPlans;
     return mealPlans.filter(p => p.category === activeFilter);
-  }, [activeFilter]);
+  }, [activeFilter, mealPlans]);
 
   return (
     <main className="meal-plans-view">
@@ -85,9 +123,19 @@ export default function MealPlansPage() {
 
           {/* Cards Grid */}
           <div className="meal-plans-cards-grid">
-            {filteredPlans.map((plan: MealPlan) => (
-              <MealPlanCard key={plan.id} plan={plan} />
-            ))}
+            {isLoading ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                Loading meal plans...
+              </div>
+            ) : filteredPlans.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: 'var(--text-muted)' }}>
+                No meal plans found for this filter.
+              </div>
+            ) : (
+              filteredPlans.map((plan: MealPlan) => (
+                <MealPlanCard key={plan.id} plan={plan} />
+              ))
+            )}
           </div>
         </div>
       </section>
