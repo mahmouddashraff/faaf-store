@@ -7,14 +7,7 @@ import type { MealPlan } from '../../lib/mealPlans';
 import MealPlanCard from '../../components/MealPlanCard';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
-const filterCategories = [
-  { id: 'ALL', label: 'All Meal Plans' },
-  { id: 'Weight Loss', label: 'Weight Loss' },
-  { id: 'Muscle Gain', label: 'Muscle Gain' },
-  { id: 'High Protein', label: 'High Protein' },
-  { id: 'Balanced Nutrition', label: 'Balanced Nutrition' },
-  { id: 'Performance', label: 'Performance' },
-];
+// Filters are now computed dynamically from active meal plans
 
 export default function MealPlansPage() {
   const [activeFilter, setActiveFilter] = useState<string>('ALL');
@@ -55,6 +48,11 @@ export default function MealPlansPage() {
     }
     loadMealPlans();
   }, []);
+
+  const filterCategories = useMemo(() => {
+    const cats = Array.from(new Set(mealPlans.map(p => p.category))).filter(Boolean);
+    return ['ALL', ...cats];
+  }, [mealPlans]);
 
   const filteredPlans = useMemo(() => {
     if (activeFilter === 'ALL') return mealPlans;
@@ -102,15 +100,15 @@ export default function MealPlansPage() {
 
           {/* Filter Pills */}
           <div className="plans-filter-bar" role="tablist" aria-label="Meal plan filters">
-            {filterCategories.map(cat => (
+            {filterCategories.map((cat: string) => (
               <button
-                key={cat.id}
+                key={cat}
                 role="tab"
-                aria-selected={activeFilter === cat.id}
-                className={`plan-filter-pill ${activeFilter === cat.id ? 'active' : ''}`}
-                onClick={() => setActiveFilter(cat.id)}
+                aria-selected={activeFilter === cat}
+                className={`plan-filter-pill ${activeFilter === cat ? 'active' : ''}`}
+                onClick={() => setActiveFilter(cat)}
               >
-                {cat.label}
+                {cat === 'ALL' ? 'All Meal Plans' : cat}
               </button>
             ))}
           </div>
@@ -118,7 +116,7 @@ export default function MealPlansPage() {
           {/* Results Summary */}
           <div className="plans-results-count">
             Showing <strong>{filteredPlans.length}</strong> {filteredPlans.length === 1 ? 'custom meal plan' : 'custom meal plans'}
-            {activeFilter !== 'ALL' && ` in ${filterCategories.find(c => c.id === activeFilter)?.label}`}
+            {activeFilter !== 'ALL' && ` in ${activeFilter}`}
           </div>
 
           {/* Cards Grid */}

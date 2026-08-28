@@ -30,14 +30,14 @@ export default function LifestyleTab() {
     
     if (pillarsRes.error) {
       console.error('Error fetching pillars:', pillarsRes.error);
-      alert('Error fetching pillars: ' + pillarsRes.error.message);
+      alert('An error occurred. Please try again.');
     } else if (pillarsRes.data) {
       setPillars(pillarsRes.data);
     }
     
     if (tipsRes.error) {
       console.error('Error fetching tips:', tipsRes.error);
-      alert('Error fetching tips: ' + tipsRes.error.message);
+      alert('An error occurred. Please try again.');
     } else if (tipsRes.data) {
       setTips(tipsRes.data);
     }
@@ -82,7 +82,7 @@ export default function LifestyleTab() {
     
     if (res.error) {
       console.error(`Error saving ${_type}:`, res.error);
-      alert(`Error saving ${_type}: ` + res.error.message);
+      alert('An error occurred while saving. Please check your inputs and try again.');
       setLoading(false);
       return;
     }
@@ -97,7 +97,7 @@ export default function LifestyleTab() {
     const { error } = await supabase.from(table).update({ is_archived: !currentArchived }).eq('id', id);
     if (error) {
       console.error(`Error archiving ${type}:`, error);
-      alert('Error updating status: ' + error.message);
+      alert('An error occurred. Please try again.');
     }
     fetchData();
   };
@@ -109,7 +109,7 @@ export default function LifestyleTab() {
       const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) {
         console.error(`Error deleting ${type}:`, error);
-        alert(`Error deleting ${type}: ` + error.message);
+        alert('An error occurred. Please try again.');
       } else {
         alert(`${type === 'pillar' ? 'Lifestyle pillar' : 'Lifestyle tip'} deleted permanently.`);
       }

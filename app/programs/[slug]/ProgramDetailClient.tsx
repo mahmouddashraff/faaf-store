@@ -62,7 +62,7 @@ export default function ProgramDetailClient({ program }: { program: any }) {
                     style={{ padding: '16px 36px', fontSize: '1.0625rem' }}
                     onClick={handleStartProgram}
                   >
-                    ADD TO BAG →
+                    {((typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, '')) || 0) > 0) ? `ADD TO BAG ($${(typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, ''))).toFixed(2)})` : 'ADD TO BAG (FREE)'}
                   </button>
                 <Link href="/shop" className="secondary-btn light">
                   SHOP RECOMMENDED STACK
@@ -74,7 +74,9 @@ export default function ProgramDetailClient({ program }: { program: any }) {
             <div className="detail-summary-card">
               <div className="summary-card-header">
                 <h3>PROGRAM AT A GLANCE</h3>
-                <span className="card-free-tag">${typeof program.price === 'number' ? program.price.toFixed(2) : program.price}</span>
+                <span className="card-free-tag">
+                  {((typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, '')) || 0) > 0) ? `$${(typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, ''))).toFixed(2)}` : 'FREE'}
+                </span>
               </div>
 
               <div className="summary-specs-list">
@@ -101,7 +103,7 @@ export default function ProgramDetailClient({ program }: { program: any }) {
                   className="primary-btn full-width"
                   onClick={handleStartProgram}
                 >
-                  ADD TO BAG
+                  {((typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, '')) || 0) > 0) ? `ADD TO BAG ($${(typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, ''))).toFixed(2)})` : 'ADD TO BAG (FREE)'}
                 </button>
                 <small className="instant-access-note">
                   🔒 100% Free digital access with FAAF Community
@@ -240,7 +242,7 @@ export default function ProgramDetailClient({ program }: { program: any }) {
               className="primary-btn"
               onClick={handleStartProgram}
             >
-              ADD TO BAG →
+              {((typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, '')) || 0) > 0) ? `ADD TO BAG ($${(typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, ''))).toFixed(2)})` : 'ADD TO BAG (FREE)'}
             </button>
             <Link href="/programs" className="secondary-btn light">
               EXPLORE OTHER PROGRAMS

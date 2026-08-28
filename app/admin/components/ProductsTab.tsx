@@ -87,7 +87,7 @@ export default function ProductsTab({ products }: { products: any[] }) {
       await saveProductAction(fd);
       setEditingProduct(null); // close modal on success
     } catch (err: any) {
-      alert('Error saving product: ' + err.message);
+      alert('An error occurred. Please try again.');
     } finally {
       setIsSaving(false);
     }

@@ -24,7 +24,7 @@ export default function MealPlansTab() {
     
     if (error) {
       console.error('Error fetching meal plans:', error);
-      alert('Error fetching meal plans: ' + error.message);
+      alert('An error occurred. Please try again.');
     }
     if (data) setMealPlans(data);
     setLoading(false);
@@ -57,7 +57,7 @@ export default function MealPlansTab() {
     
     if (res.error) {
       console.error('Error saving meal plan:', res.error);
-      alert('Error saving meal plan: ' + res.error.message);
+      alert('An error occurred while saving. Please check your inputs and try again.');
       setLoading(false);
       return;
     }
@@ -71,7 +71,7 @@ export default function MealPlansTab() {
     const { error } = await supabase.from('meal_plans').update({ is_archived: !currentArchived }).eq('id', id);
     if (error) {
       console.error('Error archiving meal plan:', error);
-      alert('Error updating status: ' + error.message);
+      alert('An error occurred. Please try again.');
     }
     fetchMealPlans();
   };
@@ -82,7 +82,7 @@ export default function MealPlansTab() {
       const { error } = await supabase.from('meal_plans').delete().eq('id', id);
       if (error) {
         console.error('Error deleting meal plan:', error);
-        alert('Error deleting meal plan: ' + error.message);
+        alert('An error occurred. Please try again.');
       } else {
         alert('Meal plan deleted permanently.');
       }

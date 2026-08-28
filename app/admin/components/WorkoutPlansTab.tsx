@@ -24,7 +24,7 @@ export default function WorkoutPlansTab() {
     
     if (error) {
       console.error('Error fetching plans:', error);
-      alert('Error fetching workout plans: ' + error.message);
+      alert('An error occurred. Please try again.');
     }
     if (data) setPlans(data);
     setLoading(false);
@@ -56,7 +56,7 @@ export default function WorkoutPlansTab() {
     
     if (res.error) {
       console.error('Error saving plan:', res.error);
-      alert('Error saving workout plan: ' + res.error.message);
+      alert('An error occurred while saving. Please check your inputs and try again.');
       setLoading(false);
       return;
     }
@@ -70,7 +70,7 @@ export default function WorkoutPlansTab() {
     const { error } = await supabase.from('workout_plans').update({ is_archived: !currentArchived }).eq('id', id);
     if (error) {
       console.error('Error archiving plan:', error);
-      alert('Error updating status: ' + error.message);
+      alert('An error occurred. Please try again.');
     }
     fetchPlans();
   };
@@ -81,7 +81,7 @@ export default function WorkoutPlansTab() {
       const { error } = await supabase.from('workout_plans').delete().eq('id', id);
       if (error) {
         console.error('Error deleting plan:', error);
-        alert('Error deleting plan: ' + error.message);
+        alert('An error occurred. Please try again.');
       } else {
         alert('Workout plan deleted permanently.');
       }

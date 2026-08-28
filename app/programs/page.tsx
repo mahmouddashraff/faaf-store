@@ -7,13 +7,7 @@ import type { FitnessProgram } from '../../lib/programs';
 import ProgramCard from '../../components/ProgramCard';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
-const programCategories = [
-  { id: 'ALL', label: 'All Programs' },
-  { id: 'Lifestyle Transformation', label: 'Lifestyle Transformation' },
-  { id: 'Fat Loss', label: 'Fat Loss & Conditioning' },
-  { id: 'Beginner Fitness', label: 'Beginner Fitness' },
-  { id: 'Athletic Performance', label: 'Athletic Performance' },
-];
+// Categories are now computed dynamically from active programs
 
 export default function ProgramsPage() {
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
@@ -58,6 +52,11 @@ export default function ProgramsPage() {
     }
     loadPrograms();
   }, []);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(programs.map(p => p.category))).filter(Boolean);
+    return ['ALL', ...cats];
+  }, [programs]);
 
   const filteredPrograms = useMemo(() => {
     if (activeCategory === 'ALL') return programs;
@@ -120,15 +119,15 @@ export default function ProgramsPage() {
 
           {/* Category Tabs */}
           <div className="programs-filter-bar" role="tablist" aria-label="Program categories">
-            {programCategories.map(cat => (
+            {categories.map((cat: string) => (
               <button
-                key={cat.id}
+                key={cat}
                 role="tab"
-                aria-selected={activeCategory === cat.id}
-                className={`program-filter-pill ${activeCategory === cat.id ? 'active' : ''}`}
-                onClick={() => setActiveCategory(cat.id)}
+                aria-selected={activeCategory === cat}
+                className={`program-filter-pill ${activeCategory === cat ? 'active' : ''}`}
+                onClick={() => setActiveCategory(cat)}
               >
-                {cat.label}
+                {cat === 'ALL' ? 'All Programs' : cat}
               </button>
             ))}
           </div>

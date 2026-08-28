@@ -24,7 +24,7 @@ export default function ProgramsTab() {
     
     if (error) {
       console.error('Error fetching programs:', error);
-      alert('Error fetching programs: ' + error.message);
+      alert('An error occurred. Please try again.');
     }
     if (data) setPrograms(data);
     setLoading(false);
@@ -57,7 +57,7 @@ export default function ProgramsTab() {
     
     if (res.error) {
       console.error('Error saving program:', res.error);
-      alert('Error saving program: ' + res.error.message);
+      alert('An error occurred while saving. Please check your inputs and try again.');
       setLoading(false);
       return;
     }
@@ -71,7 +71,7 @@ export default function ProgramsTab() {
     const { error } = await supabase.from('programs').update({ is_archived: !currentArchived }).eq('id', id);
     if (error) {
       console.error('Error archiving program:', error);
-      alert('Error updating status: ' + error.message);
+      alert('An error occurred. Please try again.');
     }
     fetchPrograms();
   };
@@ -82,7 +82,7 @@ export default function ProgramsTab() {
       const { error } = await supabase.from('programs').delete().eq('id', id);
       if (error) {
         console.error('Error deleting program:', error);
-        alert('Error deleting program: ' + error.message);
+        alert('An error occurred. Please try again.');
       } else {
         alert('Program deleted permanently.');
       }

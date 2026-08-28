@@ -7,15 +7,7 @@ import type { WorkoutPlan } from '../../lib/workoutPlans';
 import WorkoutPlanCard from '../../components/WorkoutPlanCard';
 import CategoryInquiryBanner from '../../components/CategoryInquiry';
 
-const filterCategories = [
-  { id: 'ALL', label: 'All Plans' },
-  { id: 'Beginner', label: 'Beginner' },
-  { id: 'Intermediate', label: 'Intermediate' },
-  { id: 'Advanced', label: 'Advanced' },
-  { id: 'Strength', label: 'Strength & Hypertrophy' },
-  { id: 'Fat Loss', label: 'Fat Loss' },
-  { id: 'Home', label: 'Home / No Gym' },
-];
+// Filters are now computed dynamically from active plans
 
 export default function WorkoutPlansPage() {
   const [activeFilter, setActiveFilter] = useState<string>('ALL');
@@ -55,17 +47,18 @@ export default function WorkoutPlansPage() {
     loadPlans();
   }, []);
 
+  const filterCategories = useMemo(() => {
+    const levels = Array.from(new Set(workoutPlans.map(p => p.level))).filter(Boolean);
+    const cats = Array.from(new Set(workoutPlans.map(p => p.category))).filter(Boolean);
+    
+    // De-duplicate in case a level and category have the same string
+    const uniqueFilters = Array.from(new Set([...levels, ...cats]));
+    return ['ALL', ...uniqueFilters];
+  }, [workoutPlans]);
+
   const filteredPlans = useMemo(() => {
     if (activeFilter === 'ALL') return workoutPlans;
-    return workoutPlans.filter(p => {
-      if (activeFilter === 'Beginner') return p.level === 'Beginner';
-      if (activeFilter === 'Intermediate') return p.level === 'Intermediate';
-      if (activeFilter === 'Advanced') return p.level === 'Advanced';
-      if (activeFilter === 'Strength') return p.category === 'Strength';
-      if (activeFilter === 'Fat Loss') return p.category === 'Fat Loss';
-      if (activeFilter === 'Home') return p.category === 'Home';
-      return false;
-    });
+    return workoutPlans.filter(p => p.level === activeFilter || p.category === activeFilter);
   }, [activeFilter, workoutPlans]);
 
   return (
@@ -109,15 +102,15 @@ export default function WorkoutPlansPage() {
 
           {/* Filter Pills */}
           <div className="plans-filter-bar" role="tablist" aria-label="Workout plan filters">
-            {filterCategories.map(cat => (
+            {filterCategories.map((cat: string) => (
               <button
-                key={cat.id}
+                key={cat}
                 role="tab"
-                aria-selected={activeFilter === cat.id}
-                className={`plan-filter-pill ${activeFilter === cat.id ? 'active' : ''}`}
-                onClick={() => setActiveFilter(cat.id)}
+                aria-selected={activeFilter === cat}
+                className={`plan-filter-pill ${activeFilter === cat ? 'active' : ''}`}
+                onClick={() => setActiveFilter(cat)}
               >
-                {cat.label}
+                {cat === 'ALL' ? 'All Plans' : cat}
               </button>
             ))}
           </div>
@@ -125,7 +118,7 @@ export default function WorkoutPlansPage() {
           {/* Results Summary */}
           <div className="plans-results-count">
             Showing <strong>{filteredPlans.length}</strong> {filteredPlans.length === 1 ? 'workout plan' : 'workout plans'}
-            {activeFilter !== 'ALL' && ` in ${filterCategories.find(c => c.id === activeFilter)?.label}`}
+            {activeFilter !== 'ALL' && ` in ${activeFilter}`}
           </div>
 
           {/* Cards Grid */}

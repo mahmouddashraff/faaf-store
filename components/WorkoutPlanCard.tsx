@@ -47,6 +47,13 @@ export default function WorkoutPlanCard({ plan }: { plan: WorkoutPlan }) {
         {/* Meta Stats Row */}
         <div className="plan-meta-grid">
           <div className="plan-meta-item">
+            <span className="meta-icon">💰</span>
+            <div>
+              <small>Price</small>
+              <strong>{(plan.price || 0) > 0 ? `$${(plan.price || 0).toFixed(2)}` : 'FREE'}</strong>
+            </div>
+          </div>
+          <div className="plan-meta-item">
             <span className="meta-icon">⏱️</span>
             <div>
               <small>Duration</small>
@@ -86,10 +93,18 @@ export default function WorkoutPlanCard({ plan }: { plan: WorkoutPlan }) {
         <div className="plan-card-footer">
           <button
             type="button"
-            className="primary-btn full-width"
+            className="secondary-btn full-width"
             onClick={() => setShowModal(true)}
+            style={{ marginBottom: '10px' }}
           >
-            VIEW WORKOUT PLAN →
+            VIEW DETAILS
+          </button>
+          <button
+            type="button"
+            className="primary-btn full-width"
+            onClick={handleEnroll}
+          >
+            {(plan.price || 0) > 0 ? `ADD TO BAG ($${(plan.price || 0).toFixed(2)})` : 'ADD TO BAG (FREE)'}
           </button>
         </div>
       </article>

@@ -49,12 +49,14 @@ export default function ProgramCard({ program }: { program: FitnessProgram }) {
             <strong>{program.rating}</strong>
             <small>({program.reviews} reviews)</small>
           </div>
-          <div className="program-price-badge">{program.price}</div>
+          <div className="program-price-badge">
+            {((typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, '')) || 0) > 0) ? `$${(typeof program.price === 'number' ? program.price : parseFloat((String(program.price) || '').replace(/[^0-9.]/g, ''))).toFixed(2)}` : 'FREE'}
+          </div>
         </div>
 
         {/* Action Button */}
-        <Link href={`/programs/${program.slug}`} className="primary-btn full-width">
-          EXPLORE PROGRAM DETAILS →
+        <Link href={`/programs/${program.slug}`} className="secondary-btn full-width">
+          VIEW DETAILS
         </Link>
       </div>
     </article>

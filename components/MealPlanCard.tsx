@@ -63,7 +63,7 @@ export default function MealPlanCard({ plan }: { plan: MealPlan }) {
           </div>
           <div className="metric-price">
             <small>Full Blueprint</small>
-            <strong>${plan.price.toFixed(2)}</strong>
+            <strong>{(plan.price || 0) > 0 ? `$${(plan.price || 0).toFixed(2)}` : 'FREE'}</strong>
           </div>
         </div>
 
@@ -119,10 +119,18 @@ export default function MealPlanCard({ plan }: { plan: MealPlan }) {
         <div className="meal-card-footer">
           <button
             type="button"
-            className="primary-btn full-width"
+            className="secondary-btn full-width"
             onClick={() => setShowModal(true)}
+            style={{ marginBottom: '10px' }}
           >
-            VIEW PLAN DETAILS →
+            VIEW DETAILS
+          </button>
+          <button
+            type="button"
+            className="primary-btn full-width"
+            onClick={handleEnroll}
+          >
+            {(plan.price || 0) > 0 ? `ADD TO BAG ($${(plan.price || 0).toFixed(2)})` : 'ADD TO BAG (FREE)'}
           </button>
         </div>
       </article>
@@ -212,7 +220,7 @@ export default function MealPlanCard({ plan }: { plan: MealPlan }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                   <h4>GET INSTANT DIGITAL ACCESS</h4>
                   <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--gold-400)' }}>
-                    ${plan.price.toFixed(2)}
+                    {(plan.price || 0) > 0 ? `$${(plan.price || 0).toFixed(2)}` : 'FREE'}
                   </span>
                 </div>
 
@@ -223,7 +231,7 @@ export default function MealPlanCard({ plan }: { plan: MealPlan }) {
                 ) : (
                   <div className="enroll-form">
                     <button type="button" onClick={handleEnroll} className="primary-btn full-width">
-                      ADD TO BAG (${plan.price.toFixed(2)}) →
+                      {(plan.price || 0) > 0 ? `ADD TO BAG ($${(plan.price || 0).toFixed(2)})` : 'ADD TO BAG (FREE)'}
                     </button>
                     <small className="modal-disclaimer">
                       Instant PDF blueprint download + printable shopping checklist + recipe cards.
